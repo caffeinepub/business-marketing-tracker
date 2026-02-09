@@ -1,0 +1,85 @@
+{
+  "kind": "build_request",
+  "title": "Improve mobile UX: sticky Add Entry, explicit copy-to-clipboard buttons, and color-coded status badges",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-28",
+      "text": "Make the DashboardPage header area (including the \"Add Entry\" button) stay visible at the top of the screen on mobile by making it sticky, so the user can tap \"Add Entry\" without scrolling.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Make the 'Add Entry' button stay at the top of the screen (sticky)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On the Marketing Tracker (Dashboard) page, when the user scrolls down on a phone-sized viewport, the \"Add Entry\" button remains visible at the top of the screen.",
+        "The sticky header does not visually overlap page content; content below the header remains readable and reachable (e.g., appropriate background and spacing/z-index).",
+        "The existing \"Add Entry\" behavior is unchanged: tapping it opens the entry form dialog in add mode."
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "text": "In HookTemplateLibraryPage, update the UI so each hook template has a clearly labeled \"Copy to Clipboard\" button next to it that copies that template’s hook content to the clipboard.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Add a \"Quick Copy\" Button in the Library: ... \"Add a 'Copy to Clipboard' button next to each hook template.\""
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each of the 3 hook template cards shows a button labeled \"Copy to Clipboard\" in the card header area next to the hook title.",
+        "Tapping \"Copy to Clipboard\" copies the corresponding template content to the clipboard using the existing clipboard flow.",
+        "If the template content is empty/whitespace, the button is disabled and the app does not attempt to copy."
+      ]
+    },
+    {
+      "id": "REQ-30",
+      "text": "Color-code Response Status indicators throughout the Marketing Tracker UI so statuses are visually scannable at a glance (e.g., Leads Generated = green, No Response = gray).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Status Indicators: On the Marketing Tracker page, ask to \"Color-code the Response Status.\" For example, make \"Leads Generated\" green and \"No Response\" gray so you can see your wins at a glance."
+        ]
+      },
+      "acceptanceCriteria": [
+        "In the Recent Posts table status column, Response Status badges are color-coded with at least these mappings: Leads Generated uses a green styling; No Response uses a gray styling.",
+        "Active Discussion and Negative Feedback are also visually distinct from the above and from each other (no two statuses share the same color styling).",
+        "The status label text remains the current user-facing terminology (e.g., \"Lead\", \"Question\", \"No Response\", \"Negative Feedback\")."
+      ]
+    }
+  ],
+  "constraints": [
+    "Keep all user-facing text in English.",
+    "Do not edit files under frontend/src/components/ui (compose them instead).",
+    "Do not change the backend ResponseStatus enum values or backend schema for this request."
+  ],
+  "nonGoals": [
+    "Adding new pages or changing navigation.",
+    "Changing backend CRUD/query behavior or authorization.",
+    "Adding additional hook template slots beyond the existing 3."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

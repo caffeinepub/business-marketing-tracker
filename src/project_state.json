@@ -1,0 +1,364 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 17,
+  "summary": "Business marketing tracker web app to log Facebook outreach posts with a database-backed entry form and a mobile-responsive dashboard (recent posts table, success rate chart, follow-up reminders), plus additional insights like days-since-last-post per group, a winning posts highlight section, and storing group rules notes.",
+  "architectural_notes": [
+    "Response Status values are constrained to: No Response, Active Discussion, Leads Generated, Negative Feedback.",
+    "Dashboard includes: recent entries table, success rate chart (by group), and follow-up reminders for items due today.",
+    "UI should be mobile-responsive with a professional, clean design.",
+    "Potential spec conflict: current Response Status enum is constrained to (No Response, Active Discussion, Leads Generated, Negative Feedback) but user requested statuses like (Lead, Question, No Response); requires a decision on final allowed values and any data migration.",
+    "Auth flow must keep identity/session state consistent between React client and backend to prevent 'Unauthorized' errors when listing entries (e.g., Recent Posts).",
+    "Ensure admin role/account always has permission to list/view entries (including Recent Posts dashboard query).",
+    "Auth flow must ensure authenticated identity is consistently recognized by the backend across all pages (Dashboard and Hook Template Library), avoiding anonymous calls and identity/session mismatches that lead to 'Sign in required'/'Unauthorized' errors.",
+    "Support an unauthenticated/anonymous access mode for Dashboard and Hook Template Library (bypass current 'Sign in required' gating and ensure backend endpoints used by these pages allow access accordingly)."
+  ],
+  "known_issues": [
+    "Recent Posts section returns 'Unauthorized' error; likely React/backend identity state mismatch or missing admin permission for list entries.",
+    "'Sign in required' / 'Unauthorized' errors occur on both Dashboard and Hook Template Library; likely React/backend identity state mismatch or auth initialization race preventing backend from recognizing authenticated user."
+  ],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-a-mobile-responsive-frontend-layout-with-a-professional-clean-visual-theme-distinct-style-typography-spacing-neutral-palette-applied-consistently-across-all-screens-and-components",
+      "title": "Create a mobile-responsive frontend layout with a professional, clean visual theme (distinct style: typography, spacing, neutral palette) applied consistently across all screens and components.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-entry-management-ui-that-lets-the-user-add-and-edit-outreach-entries-using-a-form-containing-group-page-name-text-url-link-field-date-posted-date-picker-post-content-topic-multiline-likes-reactions-number-comments-number-response-status-dropdown-with-the-exact-four-options-follow-up-date-date-picker-include-basic-validation-required-fields-as-appropriate-numeric-fields-non-negative-url-format-sanity-check",
+      "title": "Implement an entry management UI that lets the user add and edit outreach entries using a form containing: Group/Page Name (text), URL (link field), Date Posted (date picker), Post Content/Topic (multiline), Likes/Reactions (number), Comments (number), Response Status (dropdown with the exact four options), Follow-up Date (date picker). Include basic validation (required fields as appropriate; numeric fields non-negative; URL format sanity check).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-dashboard-page-that-shows-1-a-table-view-of-all-recent-posts-entries-2-a-success-rate-chart-that-shows-which-groups-have-the-most-entries-marked-active-discussion-or-leads-generated-and-3-a-reminder-section-listing-any-entries-with-follow-up-date-that-is-today",
+      "title": "Build a dashboard page that shows: (1) a table view of all recent posts/entries, (2) a 'Success Rate' chart that shows which Groups have the most entries marked Active Discussion or Leads Generated, and (3) a reminder section listing any entries with Follow-up Date that is today.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-frontend-data-fetching-mutations-to-the-backend-using-react-query-including-loading-states-error-states-and-cache-invalidation-for-create-update-delete-so-the-dashboard-stays-in-sync",
+      "title": "Wire frontend data fetching/mutations to the backend using React Query, including loading states, error states, and cache invalidation for create/update/delete so the dashboard stays in sync.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-existing-add-entry-button-opens-the-entry-form-dialog-and-that-the-form-clearly-includes-at-minimum-the-fields-group-name-url-post-content-and-response-status-dropdown-keep-all-user-facing-text-in-english",
+      "title": "Ensure the existing \"Add Entry\" button opens the entry form dialog and that the form clearly includes (at minimum) the fields: Group Name, URL, Post Content, and Response Status (dropdown). Keep all user-facing text in English.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-response-status-user-facing-labels-to-match-the-user-s-preferred-terminology-examples-e-g-show-lead-question-and-no-response-while-keeping-the-existing-backend-responsestatus-enum-values-unchanged-no-response-active-discussion-leads-generated-negative-feedback",
+      "title": "Update Response Status user-facing labels to match the user’s preferred terminology examples (e.g., show \"Lead\", \"Question\", and \"No Response\"), while keeping the existing backend ResponseStatus enum values unchanged (No Response / Active Discussion / Leads Generated / Negative Feedback).",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-days-since-last-post-counter-on-the-dashboard-that-calculates-for-each-group-the-number-of-days-since-the-most-recent-date-posted-among-entries-for-that-same-group",
+      "title": "Add a \"Days Since Last Post\" counter on the dashboard that calculates, for each group, the number of days since the most recent Date Posted among entries for that same group.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-winning-posts-section-on-the-dashboard-that-highlights-entries-with-more-than-5-comments",
+      "title": "Create a \"Winning Posts\" section on the dashboard that highlights entries with more than 5 comments.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-support-for-storing-and-editing-per-group-notes-about-group-rules-e-g-allowed-posting-days-persist-these-notes-in-the-backend-keyed-by-group-url-preferred-and-surface-them-in-the-app-ui-so-a-user-can-view-edit-them-when-working-with-entries-for-that-group",
+      "title": "Add support for storing and editing per-group \"Notes\" about group rules (e.g., allowed posting days). Persist these notes in the backend keyed by Group URL (preferred) and surface them in the app UI so a user can view/edit them when working with entries for that group.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-prevent-react-query-from-calling-backend-list-read-queries-with-an-anonymous-actor-during-internet-identity-initialization-to-eliminate-identity-state-mismatch-races-that-cause-unauthorized-errors-in-recent-posts",
+      "title": "Prevent React Query from calling backend list/read queries with an anonymous actor during Internet Identity initialization, to eliminate identity state mismatch races that cause Unauthorized errors in Recent Posts.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-path-is-consistently-applied-on-the-frontend-so-an-admin-can-list-entries-reliably-e-g-when-an-admin-secret-token-is-present-in-the-url-parameters-without-requiring-manual-refreshes-or-encountering-unauthorized-in-recent-posts",
+      "title": "Ensure the admin path is consistently applied on the frontend so an admin can list entries reliably (e.g., when an admin secret token is present in the URL parameters) without requiring manual refreshes or encountering Unauthorized in Recent Posts.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-frontend-page-named-hook-template-library-that-displays-3-hook-template-slots-and-allows-the-user-to-edit-each-hook-and-copy-the-hook-text-to-the-clipboard-via-a-copy-action",
+      "title": "Create a new frontend page named \"Hook Template Library\" that displays 3 hook template slots and allows the user to edit each hook and copy the hook text to the clipboard via a \"Copy\" action.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-in-app-navigation-so-the-user-can-switch-between-the-existing-dashboard-and-the-new-hook-template-library-page-without-breaking-the-current-dashboard-behavior",
+      "title": "Add in-app navigation so the user can switch between the existing Dashboard and the new Hook Template Library page without breaking the current dashboard behavior.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-hook-template-library-frontend-data-fetching-and-saving-to-the-backend-using-react-query-including-loading-states-error-states-and-cache-invalidation-so-the-ui-stays-in-sync-after-saving",
+      "title": "Wire Hook Template Library frontend data fetching and saving to the backend using React Query, including loading states, error states, and cache invalidation so the UI stays in sync after saving.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-image-upload-field-to-the-entryformdialog-add-edit-entry-form-that-lets-the-user-select-an-image-file-from-their-device-shows-the-selected-filename-and-a-small-preview-when-possible-and-allows-clearing-replacing-the-selected-image-before-saving",
+      "title": "Add an \"Image Upload\" field to the EntryFormDialog (Add/Edit Entry form) that lets the user select an image file from their device, shows the selected filename (and a small preview when possible), and allows clearing/replacing the selected image before saving.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-the-image-upload-field-into-the-existing-create-update-entry-flows-so-that-saving-an-entry-uploads-or-updates-removes-the-associated-image-attachment-with-proper-loading-error-handling-and-react-query-cache-invalidation-so-the-dashboard-stays-in-sync",
+      "title": "Wire the Image Upload field into the existing create/update entry flows so that saving an entry uploads (or updates/removes) the associated image attachment, with proper loading/error handling and React Query cache invalidation so the dashboard stays in sync.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-frontend-authentication-actor-initialization-flow-so-react-query-never-issues-protected-backend-queries-entries-and-hook-templates-using-an-anonymous-or-stale-actor-when-the-user-is-authenticated-preventing-unauthorized-errors-on-dashboard-and-hook-template-library",
+      "title": "Fix the frontend authentication/actor initialization flow so React Query never issues protected backend queries (entries and hook templates) using an anonymous or stale actor when the user is authenticated, preventing \"Unauthorized\" errors on Dashboard and Hook Template Library.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-authorized-actor-gating-logic-so-admin-token-access-does-not-depend-on-having-a-non-anonymous-internet-identity-and-ensure-the-backend-actor-is-initialized-with-the-admin-secret-token-before-any-admin-token-queries-mutations-run",
+      "title": "Update the authorized-actor gating logic so admin-token access does not depend on having a non-anonymous Internet Identity, and ensure the backend actor is initialized with the admin secret token before any admin-token queries/mutations run.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-sign-in-required-ui-state-on-dashboardpage-and-hooktemplatelibrarypage-is-shown-only-when-the-user-is-truly-anonymous-no-authenticated-identity-and-no-admin-token-and-not-as-a-transient-state-caused-by-identity-actor-initialization-races",
+      "title": "Ensure the \"Sign in required\" UI state on DashboardPage and HookTemplateLibraryPage is shown only when the user is truly anonymous (no authenticated identity and no admin token), and not as a transient state caused by identity/actor initialization races.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-sign-in-gate-ui-on-dashboardpage-and-hooktemplatelibrarypage-so-the-pages-render-and-function-even-when-the-current-auth-mode-is-anonymous-no-internet-identity-and-no-admin-token",
+      "title": "Remove the sign-in gate UI on DashboardPage and HookTemplateLibraryPage so the pages render and function even when the current auth mode is anonymous (no Internet Identity and no admin token).",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-authorized-actor-gating-logic-so-react-query-read-write-operations-for-dashboard-and-hook-template-library-are-enabled-in-anonymous-mode-using-an-anonymous-actor-rather-than-being-disabled-behind-isreadyforqueries-authmode-checks",
+      "title": "Update the authorized-actor gating logic so React Query read/write operations for Dashboard and Hook Template Library are enabled in anonymous mode using an anonymous actor, rather than being disabled behind isReadyForQueries/authMode checks.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-dashboardpage-header-area-including-the-add-entry-button-stay-visible-at-the-top-of-the-screen-on-mobile-by-making-it-sticky-so-the-user-can-tap-add-entry-without-scrolling",
+      "title": "Make the DashboardPage header area (including the \"Add Entry\" button) stay visible at the top of the screen on mobile by making it sticky, so the user can tap \"Add Entry\" without scrolling.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-hooktemplatelibrarypage-update-the-ui-so-each-hook-template-has-a-clearly-labeled-copy-to-clipboard-button-next-to-it-that-copies-that-template-s-hook-content-to-the-clipboard",
+      "title": "In HookTemplateLibraryPage, update the UI so each hook template has a clearly labeled \"Copy to Clipboard\" button next to it that copies that template’s hook content to the clipboard.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-color-code-response-status-indicators-throughout-the-marketing-tracker-ui-so-statuses-are-visually-scannable-at-a-glance-e-g-leads-generated-green-no-response-gray",
+      "title": "Color-code Response Status indicators throughout the Marketing Tracker UI so statuses are visually scannable at a glance (e.g., Leads Generated = green, No Response = gray).",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create database schema for Facebook outreach entries with fields: Group/Page Name, Group URL, Date Posted, Post Content/Topic, Likes/Reactions, Comments, Response Status (No Response/Active Discussion/Leads Generated/Negative Feedback), Follow-up Date.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Build entry management UI to add/view/edit outreach entries (form with date pickers, dropdown for Response Status, link field).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Dashboard table view showing all recent outreach posts/entries.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Success Rate chart showing which Groups have the most entries marked Active Discussion or Leads Generated.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Reminder section listing entries whose Follow-up Date is today.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Professional, clean, mobile-responsive UI optimized for phone checking.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Implement a persistent backend data model for Facebook outreach entries with the following fields: Group/Page Name (text), URL of the Group (link as text), Date Posted (date), Post Content/Topic (long text), Number of Likes/Reactions (number), Number of Comments (number), Response Status (enum: No Response, Active Discussion, Leads Generated, Negative Feedback), Follow-up Date (date). Each entry must have a stable unique ID and timestamps for created/updated.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Expose backend CRUD/query methods to support the app UI: create entry, update entry by ID, delete entry by ID, get entry by ID, list entries (most recent first, with pagination or a reasonable limit), list entries whose Follow-up Date is today (based on a consistent date format), and a summary query that returns per-Group counts of entries whose Response Status is Active Discussion or Leads Generated.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Ensure the 'Add Entry' button opens the entry form UI (e.g., modal/drawer/page) with fields including Group Name, URL, Post Content, and a Response Status dropdown as requested.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Add a 'Days Since Last Post' counter per group to help avoid posting too frequently in the same Facebook group.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Create a 'Winning Posts' section that highlights posts/entries with more than 5 comments.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add a 'Notes' field for Group Rules (e.g., posting allowed days) and surface it in the app to reduce risk of violating group rules.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Update backend authorization checks for entry read/list queries so that canister admins can always view and list outreach entries (including Recent Posts), even if they do not have the #user permission.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Add a 'Hook Template Library' page to save a set of hooks (initially 3) and allow easy copy-paste for creating new posts.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Add backend support for a per-user Hook Template Library that stores exactly 3 hook templates per authenticated user, and expose read/write methods to fetch and update those templates.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Add an \"Image Upload\" field to the Add Entry form so users can attach an image to an outreach entry (store and associate with the entry).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Extend the backend data model to support an optional image attachment for each Facebook outreach entry, including storing the image bytes and enough metadata to render it correctly (at minimum: MIME type), and associating it with the entry ID.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Remove/disable the sign-in requirement so the Dashboard and Hook Template Library are usable immediately without authentication (no Internet Identity and no admin token).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Allow anonymous callers to use the backend features required by the Dashboard and Hook Template Library (entries CRUD, follow-up queries, group summary, group notes read/write, and hook templates read/write) without trapping with Unauthorized errors.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "Make the \"Add Entry\" button stay at the top of the screen (sticky) so it’s always visible on mobile without scrolling.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Add a \"Copy to Clipboard\" button next to each hook template in the Hook Template Library for quick copying.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Color-code the Response Status values in the Marketing Tracker UI (e.g., Leads Generated = green, No Response = gray) for at-a-glance scanning.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Business Marketing Tracker",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

@@ -1,0 +1,67 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-make-the-dashboardpage-header-area-including-the-add-entry-button-stay-visible-at-the-top-of-the-screen-on-mobile-by-making-it-sticky-so-the-user-can-tap-add-entry-without-scrolling",
+      "featureTitle": "Make the DashboardPage header area (including the \"Add Entry\" button) stay visible at the top of the screen on mobile by making it sticky, so the user can tap \"Add Entry\" without scrolling.",
+      "files": [
+        "frontend/src/pages/DashboardPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-28"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-hooktemplatelibrarypage-update-the-ui-so-each-hook-template-has-a-clearly-labeled-copy-to-clipboard-button-next-to-it-that-copies-that-template-s-hook-content-to-the-clipboard",
+      "featureTitle": "In HookTemplateLibraryPage, update the UI so each hook template has a clearly labeled \"Copy to Clipboard\" button next to it that copies that template’s hook content to the clipboard.",
+      "files": [
+        "frontend/src/pages/HookTemplateLibraryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-29"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-color-code-response-status-indicators-throughout-the-marketing-tracker-ui-so-statuses-are-visually-scannable-at-a-glance-e-g-leads-generated-green-no-response-gray",
+      "featureTitle": "Color-code Response Status indicators throughout the Marketing Tracker UI so statuses are visually scannable at a glance (e.g., Leads Generated = green, No Response = gray).",
+      "files": [
+        "frontend/src/components/dashboard/FollowUpTodayList.tsx",
+        "frontend/src/components/entries/EntriesTable.tsx",
+        "frontend/src/components/entries/responseStatusLabels.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-30"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

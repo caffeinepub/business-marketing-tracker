@@ -1,0 +1,59 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-09T06:29:01.760Z",
+  "summary": "REQ-28 appears implemented via a mobile sticky header wrapper on DashboardPage keeping the header/Add Entry button visible with background/spacing/z-index. REQ-30 appears implemented by introducing a shared response status style helper and applying it to badges in the Recent Posts table and Follow-up reminders. REQ-29 is only partially evidenced: copy logic exists, but the required explicit \"Copy to Clipboard\" button placement/labeling and disabled-on-empty behavior are not clearly shown, and the code currently shows an error toast instead of disabling the button.",
+  "missing_requirements": [
+    {
+      "id": "REQ-29",
+      "requirement": "Each of the 3 hook template cards shows a button labeled \"Copy to Clipboard\" in the card header area next to the hook title.",
+      "reason": "The diff shows a handleCopy function but the truncated file excerpt does not show any per-card header UI including a button with the exact label \"Copy to Clipboard\" placed next to the hook title.",
+      "evidence": [
+        "frontend/src/pages/HookTemplateLibraryPage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "requirement": "If the template content is empty/whitespace, the \"Copy to Clipboard\" button is disabled and the app does not attempt to copy.",
+      "reason": "The shown handleCopy implementation checks for empty content and triggers a toast error, but there is no evidence the button is disabled; additionally the flow still allows a user action that results in an error message rather than a disabled control.",
+      "evidence": [
+        "frontend/src/pages/HookTemplateLibraryPage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "requirement": "Tapping \"Copy to Clipboard\" copies the corresponding template content using the existing clipboard flow.",
+      "reason": "The implementation uses navigator.clipboard.writeText directly; there is no evidence it reuses an existing app clipboard utility/flow (if one exists).",
+      "evidence": [
+        "frontend/src/pages/HookTemplateLibraryPage.tsx (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Anonymous-mode support / refactor of authorization and query enabling behavior (e.g., \"anonymous-capable\" actor, isReadyForQueries true in anonymous mode).",
+      "reason": "The BuildRequest is strictly about sticky header, copy buttons, and status badge colors; auth/anonymous-mode changes are not requested and are listed as changes in the diff summary text.",
+      "evidence": [
+        "frontend-file-summaries.txt (truncated): \"useAuthorizedActor.ts\" and \"useOutreachQueries.ts\" / \"useOutreachMutations.ts\" summaries"
+      ]
+    },
+    {
+      "description": "Global visual theme/palette and Tailwind configuration updates (OKLCH neutral palette, typography/spacing/shadows).",
+      "reason": "Not requested by REQ-28/29/30; appears as additional styling/theme work mentioned in the diff summary file list.",
+      "evidence": [
+        "frontend-file-summaries.txt (truncated): \"frontend/src/index.css\" summary",
+        "frontend-file-summaries.txt (truncated): \"frontend/tailwind.config.js\" summary"
+      ]
+    }
+  ],
+  "confidence": 0.66,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/components/dashboard/FollowUpTodayList.tsx",
+    "frontend/src/components/entries/EntriesTable.tsx",
+    "frontend/src/components/entries/responseStatusLabels.ts",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/HookTemplateLibraryPage.tsx",
+    "project_state.json"
+  ]
+}
