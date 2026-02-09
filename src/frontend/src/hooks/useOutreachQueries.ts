@@ -10,7 +10,7 @@ const QUERY_KEYS = {
   groupNotes: (authKey: string, groupUrl: string) => ['outreach', 'groupNotes', authKey, groupUrl],
 };
 
-function useListEntries() {
+function useListEntries(enabledOverride?: boolean) {
   const { actor, isReadyForQueries, authContextKey } = useAuthorizedActor();
 
   return useQuery<FacebookOutreachEntry[]>({
@@ -22,12 +22,12 @@ function useListEntries() {
       const entries = await actor.listEntries(BigInt(0), BigInt(100));
       return entries;
     },
-    enabled: isReadyForQueries,
+    enabled: enabledOverride !== undefined ? enabledOverride && isReadyForQueries : isReadyForQueries,
     retry: false,
   });
 }
 
-function useFollowUpToday() {
+function useFollowUpToday(enabledOverride?: boolean) {
   const { actor, isReadyForQueries, authContextKey } = useAuthorizedActor();
   const today = getTodayString();
 
@@ -39,12 +39,12 @@ function useFollowUpToday() {
       }
       return actor.getFollowUpToday(today);
     },
-    enabled: isReadyForQueries,
+    enabled: enabledOverride !== undefined ? enabledOverride && isReadyForQueries : isReadyForQueries,
     retry: false,
   });
 }
 
-function useGroupSummary() {
+function useGroupSummary(enabledOverride?: boolean) {
   const { actor, isReadyForQueries, authContextKey } = useAuthorizedActor();
 
   return useQuery<[string, bigint][]>({
@@ -55,7 +55,7 @@ function useGroupSummary() {
       }
       return actor.getGroupResponseSummary();
     },
-    enabled: isReadyForQueries,
+    enabled: enabledOverride !== undefined ? enabledOverride && isReadyForQueries : isReadyForQueries,
     retry: false,
   });
 }

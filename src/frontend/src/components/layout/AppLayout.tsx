@@ -1,6 +1,12 @@
 import { SiFacebook } from 'react-icons/si';
-import { Heart, LayoutDashboard, BookText } from 'lucide-react';
+import { Heart, LayoutDashboard, BookText, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,6 +15,10 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, currentView, onNavigate }: AppLayoutProps) {
+  const handleSmokeTestClick = () => {
+    window.open('/docs/live-smoke-test.md', '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -58,17 +68,38 @@ export default function AppLayout({ children, currentView, onNavigate }: AppLayo
       {/* Footer */}
       <footer className="border-t bg-card mt-12">
         <div className="container mx-auto px-4 py-6">
-          <p className="text-center text-sm text-muted-foreground">
-            © 2026. Built with <Heart className="inline h-3 w-3 text-red-500 fill-red-500" /> using{' '}
-            <a
-              href="https://caffeine.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium hover:underline"
-            >
-              caffeine.ai
-            </a>
-          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-center sm:text-left text-sm text-muted-foreground">
+              © 2026. Built with <Heart className="inline h-3 w-3 text-red-500 fill-red-500" /> using{' '}
+              <a
+                href="https://caffeine.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium hover:underline"
+              >
+                caffeine.ai
+              </a>
+            </p>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSmokeTestClick}
+                    className="text-xs"
+                  >
+                    <FileText className="mr-2 h-3 w-3" />
+                    Smoke Test
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>View Live deployment checklist</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
       </footer>
     </div>

@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Improve the Marketing Tracker mobile UX and scanning speed by keeping key actions accessible, making template copying explicit, and visually distinguishing response statuses.
+**Goal:** Make Dashboard and Hook Template Library usable without sign-in, fix Live “canister stopped/unavailable” handling, and deploy the current draft to Live.
 
 **Planned changes:**
-- Make the Dashboard (Marketing Tracker) header area sticky on phone-sized viewports so the “Add Entry” button remains visible while scrolling, without overlapping content.
-- On HookTemplateLibraryPage, add a clearly labeled “Copy to Clipboard” button on each of the 3 hook template cards that copies that card’s template content (disabled when content is empty/whitespace).
-- Color-code Response Status badges throughout the Marketing Tracker UI, including the Recent Posts table, with distinct styling per status (e.g., Leads Generated = green, No Response = gray; other statuses visually distinct).
+- Update backend authorization so anonymous callers can use all Dashboard and Hook Template Library methods without trapping “Unauthorized,” while keeping existing authenticated/admin behavior working.
+- Ensure the frontend does not place a sign-in wall in front of Dashboard or Hook Template Library in anonymous sessions, while preserving the sticky Dashboard header with the “Add Entry” button and keeping Craft Category + Image Upload in the Entry form.
+- Improve Live availability handling: ensure the backend canister is running/restarted and use the existing backend health check to show “Backend Service Unavailable” only when stopped/unreachable, with a working Retry action.
+- Deploy the updated draft to Live and run a quick smoke test covering anonymous access, sticky header/Add Entry, and Craft Category + Image Upload in the Entry form.
 
-**User-visible outcome:** On mobile, users can always access “Add Entry” while scrolling; users can copy any hook template via an explicit button; and response statuses are easier to scan at a glance due to consistent color-coded badges.
+**User-visible outcome:** In Live, users can open and use the Dashboard and Hook Template Library without signing in; if the backend is actually unreachable they see a clear “Backend Service Unavailable” state with Retry; and the Dashboard retains the sticky “Add Entry” header plus the Entry form’s Craft Category dropdown and Image Upload field.

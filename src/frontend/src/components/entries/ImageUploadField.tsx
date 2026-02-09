@@ -30,6 +30,7 @@ export default function ImageUploadField({
 
   const handleClear = () => {
     onFileSelect(null);
+    // Reset the file input to allow re-selecting the same file
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }

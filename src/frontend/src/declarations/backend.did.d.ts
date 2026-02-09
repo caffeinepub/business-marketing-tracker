@@ -10,9 +10,14 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type CraftCategory = { 'CandleMaking' : null } |
+  { 'SoapMaking' : null } |
+  { 'SplatterRoom' : null };
 export type ExternalBlob = Uint8Array;
 export interface FacebookOutreachEntry {
   'id' : bigint,
+  'typeOfInterest' : TypeOfInterest,
+  'owner' : Principal,
   'createdAt' : bigint,
   'postContent' : string,
   'responseStatus' : ResponseStatus,
@@ -21,6 +26,7 @@ export interface FacebookOutreachEntry {
   'datePosted' : string,
   'groupUrl' : string,
   'numComments' : bigint,
+  'craftCategory' : CraftCategory,
   'groupName' : string,
   'attachment' : [] | [ExternalBlob],
   'followUpDate' : string,
@@ -30,6 +36,9 @@ export type ResponseStatus = { 'LeadsGenerated' : null } |
   { 'NoResponse' : null } |
   { 'ActiveDiscussion' : null } |
   { 'NegativeFeedback' : null };
+export type TypeOfInterest = { 'Availability' : null } |
+  { 'Price' : null } |
+  { 'GroupBooking' : null };
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -73,6 +82,8 @@ export interface _SERVICE {
       bigint,
       ResponseStatus,
       string,
+      CraftCategory,
+      TypeOfInterest,
       [] | [ExternalBlob],
     ],
     FacebookOutreachEntry
@@ -86,6 +97,7 @@ export interface _SERVICE {
   'getGroupResponseSummary' : ActorMethod<[], Array<[string, bigint]>>,
   'getHookTemplatesForCaller' : ActorMethod<[], Array<HookTemplate>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'health' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listAllGroupNotes' : ActorMethod<[], Array<[string, string]>>,
   'listEntries' : ActorMethod<[bigint, bigint], Array<FacebookOutreachEntry>>,
@@ -103,6 +115,8 @@ export interface _SERVICE {
       bigint,
       ResponseStatus,
       string,
+      CraftCategory,
+      TypeOfInterest,
       [] | [ExternalBlob],
     ],
     FacebookOutreachEntry

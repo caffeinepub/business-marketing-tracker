@@ -21,8 +21,10 @@ import {
 } from '@/components/ui/select';
 import { useOutreachMutations } from '@/hooks/useOutreachMutations';
 import { useOutreachQueries } from '@/hooks/useOutreachQueries';
-import { ResponseStatus, ExternalBlob } from '@/backend';
+import { ResponseStatus, ExternalBlob, CraftCategory, TypeOfInterest } from '@/backend';
 import { getResponseStatusLabel, RESPONSE_STATUS_OPTIONS } from './responseStatusLabels';
+import { CRAFT_CATEGORY_OPTIONS } from './entryCategoryOptions';
+import { TYPE_OF_INTEREST_OPTIONS } from './entryInterestOptions';
 import { validateUrl, validateNonNegative } from './entryFormValidation';
 import { formatDateForInput, formatDateForBackend } from '@/utils/dateFormat';
 import { validateImageFile, fileToUint8Array, createPreviewUrl } from '@/utils/imageFile';
@@ -58,6 +60,8 @@ export default function EntryFormDialog({
   onClose,
 }: EntryFormDialogProps) {
   const [responseStatus, setResponseStatus] = useState<ResponseStatus>(ResponseStatus.NoResponse);
+  const [craftCategory, setCraftCategory] = useState<CraftCategory>(CraftCategory.SplatterRoom);
+  const [typeOfInterest, setTypeOfInterest] = useState<TypeOfInterest>(TypeOfInterest.Price);
   const [currentGroupUrl, setCurrentGroupUrl] = useState<string>('');
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -112,6 +116,8 @@ export default function EntryFormDialog({
         setValue('numComments', editingEntry.numComments.toString());
         setValue('followUpDate', formatDateForInput(editingEntry.followUpDate));
         setResponseStatus(editingEntry.responseStatus);
+        setCraftCategory(editingEntry.craftCategory);
+        setTypeOfInterest(editingEntry.typeOfInterest);
         setCurrentGroupUrl(editingEntry.groupUrl);
         
         // Reset image state for editing
@@ -130,6 +136,8 @@ export default function EntryFormDialog({
           groupNotes: '',
         });
         setResponseStatus(ResponseStatus.NoResponse);
+        setCraftCategory(CraftCategory.SplatterRoom);
+        setTypeOfInterest(TypeOfInterest.Price);
         setCurrentGroupUrl('');
         
         // Reset image state for new entry
@@ -171,6 +179,18 @@ export default function EntryFormDialog({
   };
 
   const onSubmit = async (data: FormData) => {
+    // Validate Craft Category is set (explicit check)
+    if (!craftCategory) {
+      toast.error('Craft Category is required');
+      return;
+    }
+
+    // Validate Type of Interest is set (explicit check)
+    if (!typeOfInterest) {
+      toast.error('Type of Interest is required');
+      return;
+    }
+
     const urlValidation = validateUrl(data.groupUrl);
     if (!urlValidation.valid) {
       toast.error(urlValidation.error);
@@ -214,6 +234,8 @@ export default function EntryFormDialog({
         numComments: BigInt(data.numComments),
         responseStatus,
         followUpDate: formatDateForBackend(data.followUpDate),
+        craftCategory,
+        typeOfInterest,
         attachment,
       };
 
@@ -303,6 +325,48 @@ export default function EntryFormDialog({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="craftCategory">Craft Category *</Label>
+              <Select 
+                value={craftCategory} 
+                onValueChange={(value) => setCraftCategory(value as CraftCategory)}
+                required
+              >
+                <SelectTrigger id="craftCategory">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CRAFT_CATEGORY_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="typeOfInterest">Type of Interest *</Label>
+              <Select 
+                value={typeOfInterest} 
+                onValueChange={(value) => setTypeOfInterest(value as TypeOfInterest)}
+                required
+              >
+                <SelectTrigger id="typeOfInterest">
+                  <SelectValue placeholder="Select interest type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TYPE_OF_INTEREST_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="datePosted">Date Posted *</Label>
               <Input
                 id="datePosted"
@@ -310,7 +374,7 @@ export default function EntryFormDialog({
                 {...register('datePosted', { required: true })}
               />
               {errors.datePosted && (
-                <p className="text-sm text-destructive">Date is required</p>
+                <p className="text-sm text-destructive">Date posted is required</p>
               )}
             </div>
 
@@ -328,11 +392,11 @@ export default function EntryFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="postContent">Post Content/Topic *</Label>
+            <Label htmlFor="postContent">Post Content *</Label>
             <Textarea
               id="postContent"
               {...register('postContent', { required: true })}
-              placeholder="Describe what you posted..."
+              placeholder="What did you post?"
               rows={4}
             />
             {errors.postContent && (
@@ -348,15 +412,18 @@ export default function EntryFormDialog({
             disabled={isLoading}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="numReactions">Reactions</Label>
               <Input
                 id="numReactions"
                 type="number"
                 min="0"
-                {...register('numReactions')}
+                {...register('numReactions', { required: true })}
               />
+              {errors.numReactions && (
+                <p className="text-sm text-destructive">Reactions is required</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -365,34 +432,37 @@ export default function EntryFormDialog({
                 id="numComments"
                 type="number"
                 min="0"
-                {...register('numComments')}
+                {...register('numComments', { required: true })}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="responseStatus">Response Status *</Label>
-              <Select value={responseStatus} onValueChange={(value) => setResponseStatus(value as ResponseStatus)}>
-                <SelectTrigger id="responseStatus">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {RESPONSE_STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {getResponseStatusLabel(option)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {errors.numComments && (
+                <p className="text-sm text-destructive">Comments is required</p>
+              )}
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
+          <div className="space-y-2">
+            <Label htmlFor="responseStatus">Response Status *</Label>
+            <Select value={responseStatus} onValueChange={(value) => setResponseStatus(value as ResponseStatus)}>
+              <SelectTrigger id="responseStatus">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {RESPONSE_STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {getResponseStatusLabel(status)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {editingEntryId ? 'Update' : 'Create'}
+              {editingEntryId ? 'Update Entry' : 'Create Entry'}
             </Button>
           </DialogFooter>
         </form>

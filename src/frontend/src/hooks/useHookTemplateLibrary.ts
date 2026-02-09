@@ -4,7 +4,7 @@ import type { HookTemplate } from '@/backend';
 
 const QUERY_KEY = (authKey: string) => ['hookTemplates', authKey];
 
-export function useGetHookTemplates() {
+export function useGetHookTemplates(enabledOverride?: boolean) {
   const { actor, isReadyForQueries, authContextKey } = useAuthorizedActor();
 
   return useQuery<HookTemplate[]>({
@@ -15,7 +15,7 @@ export function useGetHookTemplates() {
       }
       return actor.getHookTemplatesForCaller();
     },
-    enabled: isReadyForQueries,
+    enabled: enabledOverride !== undefined ? enabledOverride && isReadyForQueries : isReadyForQueries,
     retry: false,
   });
 }

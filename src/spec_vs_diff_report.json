@@ -1,59 +1,62 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T06:29:01.760Z",
-  "summary": "REQ-28 appears implemented via a mobile sticky header wrapper on DashboardPage keeping the header/Add Entry button visible with background/spacing/z-index. REQ-30 appears implemented by introducing a shared response status style helper and applying it to badges in the Recent Posts table and Follow-up reminders. REQ-29 is only partially evidenced: copy logic exists, but the required explicit \"Copy to Clipboard\" button placement/labeling and disabled-on-empty behavior are not clearly shown, and the code currently shows an error toast instead of disabling the button.",
+  "generatedAt": "2026-02-09T07:23:33.722Z",
+  "summary": "Diff adds frontend stopped-canister health checking with a Retry flow and keeps Dashboard/Hook Library rendering without an explicit sign-in gate, plus a Live smoke-test checklist document. However, backend authorization changes required for anonymous access are not evidenced; the shown backend code still traps as Unauthorized for non-user callers (e.g., createEntry). Deployment/restart actions for Live are also not evidenced in the diff.",
   "missing_requirements": [
     {
-      "id": "REQ-29",
-      "requirement": "Each of the 3 hook template cards shows a button labeled \"Copy to Clipboard\" in the card header area next to the hook title.",
-      "reason": "The diff shows a handleCopy function but the truncated file excerpt does not show any per-card header UI including a button with the exact label \"Copy to Clipboard\" placed next to the hook title.",
+      "id": "REQ-42",
+      "requirement": "Backend methods used by Dashboard and Hook Template Library must be usable without signing in (no Unauthorized trap for anonymous callers), including listEntries/getFollowUpToday/getGroupResponseSummary/getGroupNotes and create/update/delete/setGroupNotes, plus getHookTemplatesForCaller/saveHookTemplates.",
+      "reason": "In the provided backend snippet, authorization checks still trap for non-user callers (e.g., createEntry), which conflicts with the requirement that anonymous callers must not receive Unauthorized traps. The diff summary does not show removals/relaxation of auth checks for the listed methods, nor changes for hook template methods.",
       "evidence": [
-        "frontend/src/pages/HookTemplateLibraryPage.tsx (truncated)"
+        "backend/main.mo"
       ]
     },
     {
-      "id": "REQ-29",
-      "requirement": "If the template content is empty/whitespace, the \"Copy to Clipboard\" button is disabled and the app does not attempt to copy.",
-      "reason": "The shown handleCopy implementation checks for empty content and triggers a toast error, but there is no evidence the button is disabled; additionally the flow still allows a user action that results in an error message rather than a disabled control.",
+      "id": "REQ-44",
+      "requirement": "Ensure Live stopped-canister availability is resolved by ensuring the backend canister is running/restarted (Live) and frontend shows 'Backend Service Unavailable' only when stopped/unreachable with a Retry action.",
+      "reason": "Frontend health-check + stopped-canister UI handling is present, but there is no evidence in the diff summary of any Live canister restart/running assurance or deployment/infrastructure steps to prevent persistent 'Canister is stopped' errors when the canister is actually running.",
       "evidence": [
-        "frontend/src/pages/HookTemplateLibraryPage.tsx (truncated)"
+        "frontend/src/hooks/useBackendHealth.ts",
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend/src/pages/HookTemplateLibraryPage.tsx"
       ]
     },
     {
-      "id": "REQ-29",
-      "requirement": "Tapping \"Copy to Clipboard\" copies the corresponding template content using the existing clipboard flow.",
-      "reason": "The implementation uses navigator.clipboard.writeText directly; there is no evidence it reuses an existing app clipboard utility/flow (if one exists).",
+      "id": "REQ-45",
+      "requirement": "Deploy the current draft build to Live after fixes and perform a Live smoke test (confirm anonymous usability, sticky header with Add Entry, Craft Category + Image Upload, and backend health() returns true).",
+      "reason": "The diff adds a smoke-test checklist document, but does not provide evidence of an actual Live deployment, canister state change, or executed smoke test results.",
       "evidence": [
-        "frontend/src/pages/HookTemplateLibraryPage.tsx (truncated)"
+        "frontend/docs/live-smoke-test.md"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Anonymous-mode support / refactor of authorization and query enabling behavior (e.g., \"anonymous-capable\" actor, isReadyForQueries true in anonymous mode).",
-      "reason": "The BuildRequest is strictly about sticky header, copy buttons, and status badge colors; auth/anonymous-mode changes are not requested and are listed as changes in the diff summary text.",
+      "description": "Added an in-app 'Smoke Test' footer button/link that opens /docs/live-smoke-test.md with a tooltip.",
+      "reason": "REQ-45 asks to deploy and perform a smoke test, but does not request adding a UI control in the product to open a smoke-test document.",
       "evidence": [
-        "frontend-file-summaries.txt (truncated): \"useAuthorizedActor.ts\" and \"useOutreachQueries.ts\" / \"useOutreachMutations.ts\" summaries"
+        "frontend/src/components/layout/AppLayout.tsx"
       ]
     },
     {
-      "description": "Global visual theme/palette and Tailwind configuration updates (OKLCH neutral palette, typography/spacing/shadows).",
-      "reason": "Not requested by REQ-28/29/30; appears as additional styling/theme work mentioned in the diff summary file list.",
+      "description": "Footer attribution/year and external link to caffeine.ai added/changed.",
+      "reason": "Not requested by any requirement and could be considered UI/content changes beyond the specified fixes.",
       "evidence": [
-        "frontend-file-summaries.txt (truncated): \"frontend/src/index.css\" summary",
-        "frontend-file-summaries.txt (truncated): \"frontend/tailwind.config.js\" summary"
+        "frontend/src/components/layout/AppLayout.tsx"
       ]
     }
   ],
-  "confidence": 0.66,
+  "confidence": 0.74,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/dashboard/FollowUpTodayList.tsx",
-    "frontend/src/components/entries/EntriesTable.tsx",
-    "frontend/src/components/entries/responseStatusLabels.ts",
+    "frontend/docs/live-smoke-test.md",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/hooks/useBackendHealth.ts",
     "frontend/src/pages/DashboardPage.tsx",
     "frontend/src/pages/HookTemplateLibraryPage.tsx",
+    "frontend/src/utils/canisterErrors.ts",
     "project_state.json"
   ]
 }

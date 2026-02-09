@@ -1,85 +1,100 @@
 {
   "kind": "build_request",
-  "title": "Improve mobile UX: sticky Add Entry, explicit copy-to-clipboard buttons, and color-coded status badges",
-  "priority": "normal",
+  "title": "Fix stopped-canister and sign-in accessibility issues; deploy current draft to Live",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-28",
-      "text": "Make the DashboardPage header area (including the \"Add Entry\" button) stay visible at the top of the screen on mobile by making it sticky, so the user can tap \"Add Entry\" without scrolling.",
-      "target": "frontend",
+      "id": "REQ-42",
+      "text": "Update backend authorization so the Dashboard and Hook Template Library are fully usable without signing in (no Internet Identity and no admin token), meaning the backend methods used by these pages must not trap with \"Unauthorized\" for anonymous callers.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "Make the 'Add Entry' button stay at the top of the screen (sticky)"
+          "Fix the stopped‑canister and sign‑in issues. Make Dashboard and Hook Library fully accessible without sign‑in."
         ]
       },
       "acceptanceCriteria": [
-        "On the Marketing Tracker (Dashboard) page, when the user scrolls down on a phone-sized viewport, the \"Add Entry\" button remains visible at the top of the screen.",
-        "The sticky header does not visually overlap page content; content below the header remains readable and reachable (e.g., appropriate background and spacing/z-index).",
-        "The existing \"Add Entry\" behavior is unchanged: tapping it opens the entry form dialog in add mode."
+        "Anonymous callers can successfully call `listEntries`, `getFollowUpToday`, `getGroupResponseSummary`, and `getGroupNotes` without receiving an Unauthorized trap.",
+        "Anonymous callers can successfully call `createEntry`, `updateEntry`, `deleteEntry`, and `setGroupNotes` without receiving an Unauthorized trap.",
+        "Anonymous callers can successfully call `getHookTemplatesForCaller` and `saveHookTemplates` without receiving an Unauthorized trap.",
+        "Existing authenticated/admin behavior continues to work (authenticated users and admins still can access the same methods).",
+        "No changes break existing entry fields, including Craft Category, Type of Interest, and optional image attachment support."
       ]
     },
     {
-      "id": "REQ-29",
-      "text": "In HookTemplateLibraryPage, update the UI so each hook template has a clearly labeled \"Copy to Clipboard\" button next to it that copies that template’s hook content to the clipboard.",
+      "id": "REQ-43",
+      "text": "Ensure the frontend keeps Dashboard and Hook Template Library accessible in anonymous mode (no sign-in wall), while retaining the existing sticky Dashboard header with the \"Add Entry\" button, and keeping the Craft Category dropdown and Image Upload field in the Add/Edit Entry form.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "Add a \"Quick Copy\" Button in the Library: ... \"Add a 'Copy to Clipboard' button next to each hook template.\""
+          "Make Dashboard and Hook Library fully accessible without sign‑in. Keep the Sticky Add Entry button. Keep the Craft Category dropdown and Image Upload field."
         ]
       },
       "acceptanceCriteria": [
-        "Each of the 3 hook template cards shows a button labeled \"Copy to Clipboard\" in the card header area next to the hook title.",
-        "Tapping \"Copy to Clipboard\" copies the corresponding template content to the clipboard using the existing clipboard flow.",
-        "If the template content is empty/whitespace, the button is disabled and the app does not attempt to copy."
+        "In a fresh session with no Internet Identity login and no admin token, Dashboard renders its main content (charts/cards/table) and can load data when the backend is available.",
+        "In a fresh session with no Internet Identity login and no admin token, Hook Template Library renders its main content and can load/save templates when the backend is available.",
+        "Dashboard header remains sticky on mobile and the \"Add Entry\" button remains visible and functional.",
+        "Entry form still includes a required Craft Category dropdown and an Image Upload field, and these remain functional in create/update flows."
       ]
     },
     {
-      "id": "REQ-30",
-      "text": "Color-code Response Status indicators throughout the Marketing Tracker UI so statuses are visually scannable at a glance (e.g., Leads Generated = green, No Response = gray).",
-      "target": "frontend",
+      "id": "REQ-44",
+      "text": "Resolve the stopped-canister availability issue for Live by ensuring the backend canister is running/restarted and that the deployed frontend uses the backend health check to show a clear \"Backend Service Unavailable\" state only when the canister is stopped/unreachable, with a Retry action that re-attempts loading.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "Status Indicators: On the Marketing Tracker page, ask to \"Color-code the Response Status.\" For example, make \"Leads Generated\" green and \"No Response\" gray so you can see your wins at a glance."
+          "fix the stopped‑canister ... issues",
+          "Then deploy this draft to Live."
         ]
       },
       "acceptanceCriteria": [
-        "In the Recent Posts table status column, Response Status badges are color-coded with at least these mappings: Leads Generated uses a green styling; No Response uses a gray styling.",
-        "Active Discussion and Negative Feedback are also visually distinct from the above and from each other (no two statuses share the same color styling).",
-        "The status label text remains the current user-facing terminology (e.g., \"Lead\", \"Question\", \"No Response\", \"Negative Feedback\")."
+        "When the backend canister is stopped/unreachable, both Dashboard and Hook Template Library show the existing \"Backend Service Unavailable\" error state with a working Retry action.",
+        "When the backend canister is running, the frontend health check succeeds and normal data queries proceed without showing the stopped-canister error state.",
+        "Live environment no longer shows persistent \"Canister is stopped\" errors during normal use when the canister is running."
+      ]
+    },
+    {
+      "id": "REQ-45",
+      "text": "Deploy the current draft build to Live after applying the above fixes, and perform a quick smoke test in Live to confirm: (1) Dashboard and Hook Template Library are usable without sign-in, (2) Dashboard header is sticky with \"Add Entry\", and (3) the Entry form includes Craft Category and Image Upload.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Apply all my current draft changes ... Then deploy this draft to Live."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Live environment loads the latest frontend build.",
+        "Backend canister is running in Live and responds to `health()` with `true`.",
+        "Smoke test in Live confirms Dashboard and Hook Template Library function without signing in.",
+        "Smoke test in Live confirms the sticky Dashboard header and functional \"Add Entry\" button.",
+        "Smoke test in Live confirms the Entry form includes Craft Category dropdown and Image Upload field and can save an entry successfully."
       ]
     }
   ],
   "constraints": [
-    "Keep all user-facing text in English.",
-    "Do not edit files under frontend/src/components/ui (compose them instead).",
-    "Do not change the backend ResponseStatus enum values or backend schema for this request."
+    "Backend must remain a single Motoko actor in `backend/main.mo` (single-actor architecture).",
+    "Only add `backend/migration.mo` if a state migration is required; otherwise do not create a migration.",
+    "Do not edit any frontend files under `frontend/src/components/ui` or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Keep all user-facing text in English."
   ],
   "nonGoals": [
-    "Adding new pages or changing navigation.",
-    "Changing backend CRUD/query behavior or authorization.",
-    "Adding additional hook template slots beyond the existing 3."
+    "Adding new features beyond fixing accessibility/auth, stopped-canister handling, and deploying the current draft.",
+    "Introducing external databases, third-party authentication providers, or non-supported backend technologies.",
+    "Redesigning the UI/visual theme beyond what is required to keep existing behaviors working."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 17,
-  "summary": "Business marketing tracker web app to log Facebook outreach posts with a database-backed entry form and a mobile-responsive dashboard (recent posts table, success rate chart, follow-up reminders), plus additional insights like days-since-last-post per group, a winning posts highlight section, and storing group rules notes.",
+  "projectStateVersion": 25,
+  "summary": "Business marketing tracker web app for Pinspiration studio to log outreach/lead activity with a database-backed entry form and a mobile-responsive dashboard (recent posts table, success rate chart, follow-up reminders), plus additional insights like days-since-last-post per group, a winning posts highlight section, storing group rules notes, and enhanced entry categorization fields.",
   "architectural_notes": [
     "Response Status values are constrained to: No Response, Active Discussion, Leads Generated, Negative Feedback.",
     "Dashboard includes: recent entries table, success rate chart (by group), and follow-up reminders for items due today.",
@@ -10,13 +10,17 @@
     "Auth flow must keep identity/session state consistent between React client and backend to prevent 'Unauthorized' errors when listing entries (e.g., Recent Posts).",
     "Ensure admin role/account always has permission to list/view entries (including Recent Posts dashboard query).",
     "Auth flow must ensure authenticated identity is consistently recognized by the backend across all pages (Dashboard and Hook Template Library), avoiding anonymous calls and identity/session mismatches that lead to 'Sign in required'/'Unauthorized' errors.",
-    "Support an unauthenticated/anonymous access mode for Dashboard and Hook Template Library (bypass current 'Sign in required' gating and ensure backend endpoints used by these pages allow access accordingly)."
+    "Support an unauthenticated/anonymous access mode for Dashboard and Hook Template Library (bypass current 'Sign in required' gating and ensure backend endpoints used by these pages allow access accordingly).",
+    "Keep UI design clean and professional, tailored to Pinspiration studio branding.",
+    "Extend outreach entry data model/UI to include two new categorical fields: Craft Category (enum/list) and Type of Interest (enum/list)."
   ],
   "known_issues": [
     "Recent Posts section returns 'Unauthorized' error; likely React/backend identity state mismatch or missing admin permission for list entries.",
-    "'Sign in required' / 'Unauthorized' errors occur on both Dashboard and Hook Template Library; likely React/backend identity state mismatch or auth initialization race preventing backend from recognizing authenticated user."
+    "'Sign in required' / 'Unauthorized' errors occur on both Dashboard and Hook Template Library; likely React/backend identity state mismatch or auth initialization race preventing backend from recognizing authenticated user.",
+    "App shows 'Canister is stopped' error; backend canister is not running, causing request rejections (e.g., getHookTemplatesForCaller).",
+    "Hook Template Library 'Copy to Clipboard' action may not be copying template text reliably; needs verification/fix."
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-create-a-mobile-responsive-frontend-layout-with-a-professional-clean-visual-theme-distinct-style-typography-spacing-neutral-palette-applied-consistently-across-all-screens-and-components",
@@ -209,6 +213,94 @@
         "REQ-30"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-remove-any-remaining-sign-in-requirement-sign-in-wall-that-blocks-viewing-or-using-dashboardpage-and-hooktemplatelibrarypage-ensuring-both-pages-always-render-their-main-content-ui-even-when-the-user-is-anonymous-no-internet-identity-and-no-admin-token",
+      "title": "Remove any remaining sign-in requirement (\"sign-in wall\") that blocks viewing or using DashboardPage and HookTemplateLibraryPage, ensuring both pages always render their main content UI even when the user is anonymous (no Internet Identity and no admin token).",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-simple-user-visible-error-handling-for-the-canister-is-stopped-failure-mode-so-the-app-does-not-appear-hard-broken-when-backend-calls-fail-due-to-the-canister-being-stopped-show-a-clear-error-message-and-provide-a-retry-action-that-re-attempts-loading-entries-templates",
+      "title": "Add simple, user-visible error handling for the \"Canister is stopped\" failure mode so the app does not appear hard-broken: when backend calls fail due to the canister being stopped, show a clear error message and provide a Retry action that re-attempts loading entries/templates.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-use-the-backend-health-check-from-the-frontend-to-keep-the-ui-simple-and-robust-when-the-app-detects-the-canister-is-stopped-unreachable-show-the-stopped-canister-error-state-when-health-check-is-ok-proceed-with-normal-queries",
+      "title": "Use the backend health check from the frontend to keep the UI simple and robust: when the app detects the canister is stopped/unreachable, show the stopped-canister error state; when health check is OK, proceed with normal queries.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-address-the-reported-backend-availability-issue-by-ensuring-the-backend-canister-is-running-restarted-so-the-frontend-health-check-health-succeeds-and-the-app-can-load-dashboard-and-hook-template-library-data",
+      "title": "Address the reported backend availability issue by ensuring the backend canister is running/restarted so the frontend health check (`health`) succeeds and the app can load Dashboard and Hook Template Library data.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-hook-template-library-copy-to-clipboard-action-robust-so-it-successfully-copies-the-selected-template-s-content-across-supported-browsers-environments-including-handling-cases-where-navigator-clipboard-is-unavailable-or-permission-is-denied",
+      "title": "Make the Hook Template Library “Copy to Clipboard” action robust so it successfully copies the selected template’s content across supported browsers/environments, including handling cases where `navigator.clipboard` is unavailable or permission is denied.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-required-craft-category-dropdown-to-the-add-edit-entry-form-with-options-including-splatter-room-candle-making-soap-making-and-allow-adding-more-options-later-without-redesign-persist-the-selected-value-on-each-entry",
+      "title": "Add a required “Craft Category” dropdown to the Add/Edit Entry form with options including: Splatter Room, Candle Making, Soap Making (and allow adding more options later without redesign). Persist the selected value on each entry.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-required-type-of-interest-dropdown-to-the-add-edit-entry-form-with-options-price-availability-group-booking-persist-the-selected-value-on-each-entry",
+      "title": "Add a required “Type of Interest” dropdown to the Add/Edit Entry form with options: Price, Availability, Group Booking. Persist the selected value on each entry.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-deploy-the-current-app-version-to-the-live-environment-by-restarting-ensuring-the-backend-canister-is-running-and-publishing-the-current-frontend-build-so-the-app-appears-in-the-user-s-live-tab-then-perform-a-quick-smoke-test-to-confirm-the-requested-go-live-behaviors-are-present-sticky-dashboard-header-with-add-entry-button-entry-form-includes-craft-category-dropdown-and-image-upload-and-the-app-is-usable-without-a-sign-in-wall",
+      "title": "Deploy the current app version to the Live environment by restarting/ensuring the backend canister is running and publishing the current frontend build so the app appears in the user's “Live” tab, then perform a quick smoke test to confirm the requested go-live behaviors are present (sticky Dashboard header with “Add Entry” button, Entry form includes Craft Category dropdown and Image Upload, and the app is usable without a sign-in wall).",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-frontend-keeps-dashboard-and-hook-template-library-accessible-in-anonymous-mode-no-sign-in-wall-while-retaining-the-existing-sticky-dashboard-header-with-the-add-entry-button-and-keeping-the-craft-category-dropdown-and-image-upload-field-in-the-add-edit-entry-form",
+      "title": "Ensure the frontend keeps Dashboard and Hook Template Library accessible in anonymous mode (no sign-in wall), while retaining the existing sticky Dashboard header with the \"Add Entry\" button, and keeping the Craft Category dropdown and Image Upload field in the Add/Edit Entry form.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-resolve-the-stopped-canister-availability-issue-for-live-by-ensuring-the-backend-canister-is-running-restarted-and-that-the-deployed-frontend-uses-the-backend-health-check-to-show-a-clear-backend-service-unavailable-state-only-when-the-canister-is-stopped-unreachable-with-a-retry-action-that-re-attempts-loading",
+      "title": "Resolve the stopped-canister availability issue for Live by ensuring the backend canister is running/restarted and that the deployed frontend uses the backend health check to show a clear \"Backend Service Unavailable\" state only when the canister is stopped/unreachable, with a Retry action that re-attempts loading.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-deploy-the-current-draft-build-to-live-after-applying-the-above-fixes-and-perform-a-quick-smoke-test-in-live-to-confirm-1-dashboard-and-hook-template-library-are-usable-without-sign-in-2-dashboard-header-is-sticky-with-add-entry-and-3-the-entry-form-includes-craft-category-and-image-upload",
+      "title": "Deploy the current draft build to Live after applying the above fixes, and perform a quick smoke test in Live to confirm: (1) Dashboard and Hook Template Library are usable without sign-in, (2) Dashboard header is sticky with \"Add Entry\", and (3) the Entry form includes Craft Category and Image Upload.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -354,6 +446,50 @@
       "id": "AR-24",
       "summary": "Color-code the Response Status values in the Marketing Tracker UI (e.g., Leads Generated = green, No Response = gray) for at-a-glance scanning.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Ensure the backend methods required by Dashboard and Hook Template Library do not trap with Unauthorized for anonymous callers, so content can load without signing in (at minimum: listEntries, getFollowUpToday, getGroupResponseSummary, getGroupNotes, getHookTemplatesForCaller; and saving hook templates should also succeed in anonymous mode if the frontend allows edits).",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Add a lightweight backend health check query method (e.g., ping/health) that always returns successfully when the canister is running, so the frontend can distinguish \"backend down/stopped\" from other application errors.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Add a 'Craft Category' dropdown field to the Add/Edit Entry form (e.g., Splatter Room, Candle Making, Soap Making, etc.) and persist it with each entry.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Add a 'Type of Interest' dropdown field to the Add/Edit Entry form (e.g., Price, Availability, Group Booking) and persist it with each entry.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Update the backend entry data model and CRUD method signatures to include the new entry fields (Craft Category, Type of Interest) while keeping existing attachment behavior intact.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Update backend authorization so the Dashboard and Hook Template Library are fully usable without signing in (no Internet Identity and no admin token), meaning the backend methods used by these pages must not trap with \"Unauthorized\" for anonymous callers.",
+      "reqIds": [
+        "REQ-42"
+      ],
       "status": "pending"
     }
   ],

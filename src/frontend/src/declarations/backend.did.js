@@ -30,9 +30,21 @@ export const ResponseStatus = IDL.Variant({
   'ActiveDiscussion' : IDL.Null,
   'NegativeFeedback' : IDL.Null,
 });
+export const CraftCategory = IDL.Variant({
+  'CandleMaking' : IDL.Null,
+  'SoapMaking' : IDL.Null,
+  'SplatterRoom' : IDL.Null,
+});
+export const TypeOfInterest = IDL.Variant({
+  'Availability' : IDL.Null,
+  'Price' : IDL.Null,
+  'GroupBooking' : IDL.Null,
+});
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const FacebookOutreachEntry = IDL.Record({
   'id' : IDL.Nat,
+  'typeOfInterest' : TypeOfInterest,
+  'owner' : IDL.Principal,
   'createdAt' : IDL.Nat,
   'postContent' : IDL.Text,
   'responseStatus' : ResponseStatus,
@@ -41,6 +53,7 @@ export const FacebookOutreachEntry = IDL.Record({
   'datePosted' : IDL.Text,
   'groupUrl' : IDL.Text,
   'numComments' : IDL.Nat,
+  'craftCategory' : CraftCategory,
   'groupName' : IDL.Text,
   'attachment' : IDL.Opt(ExternalBlob),
   'followUpDate' : IDL.Text,
@@ -90,6 +103,8 @@ export const idlService = IDL.Service({
         IDL.Nat,
         ResponseStatus,
         IDL.Text,
+        CraftCategory,
+        TypeOfInterest,
         IDL.Opt(ExternalBlob),
       ],
       [FacebookOutreachEntry],
@@ -120,6 +135,7 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'health' : IDL.Func([], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listAllGroupNotes' : IDL.Func(
       [],
@@ -145,6 +161,8 @@ export const idlService = IDL.Service({
         IDL.Nat,
         ResponseStatus,
         IDL.Text,
+        CraftCategory,
+        TypeOfInterest,
         IDL.Opt(ExternalBlob),
       ],
       [FacebookOutreachEntry],
@@ -177,9 +195,21 @@ export const idlFactory = ({ IDL }) => {
     'ActiveDiscussion' : IDL.Null,
     'NegativeFeedback' : IDL.Null,
   });
+  const CraftCategory = IDL.Variant({
+    'CandleMaking' : IDL.Null,
+    'SoapMaking' : IDL.Null,
+    'SplatterRoom' : IDL.Null,
+  });
+  const TypeOfInterest = IDL.Variant({
+    'Availability' : IDL.Null,
+    'Price' : IDL.Null,
+    'GroupBooking' : IDL.Null,
+  });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
   const FacebookOutreachEntry = IDL.Record({
     'id' : IDL.Nat,
+    'typeOfInterest' : TypeOfInterest,
+    'owner' : IDL.Principal,
     'createdAt' : IDL.Nat,
     'postContent' : IDL.Text,
     'responseStatus' : ResponseStatus,
@@ -188,6 +218,7 @@ export const idlFactory = ({ IDL }) => {
     'datePosted' : IDL.Text,
     'groupUrl' : IDL.Text,
     'numComments' : IDL.Nat,
+    'craftCategory' : CraftCategory,
     'groupName' : IDL.Text,
     'attachment' : IDL.Opt(ExternalBlob),
     'followUpDate' : IDL.Text,
@@ -234,6 +265,8 @@ export const idlFactory = ({ IDL }) => {
           IDL.Nat,
           ResponseStatus,
           IDL.Text,
+          CraftCategory,
+          TypeOfInterest,
           IDL.Opt(ExternalBlob),
         ],
         [FacebookOutreachEntry],
@@ -264,6 +297,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'health' : IDL.Func([], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listAllGroupNotes' : IDL.Func(
         [],
@@ -289,6 +323,8 @@ export const idlFactory = ({ IDL }) => {
           IDL.Nat,
           ResponseStatus,
           IDL.Text,
+          CraftCategory,
+          TypeOfInterest,
           IDL.Opt(ExternalBlob),
         ],
         [FacebookOutreachEntry],

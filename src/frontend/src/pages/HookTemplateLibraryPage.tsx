@@ -1,21 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Copy, Save, AlertCircle, Loader2 } from 'lucide-react';
+import { Copy, Save, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetHookTemplates, useSaveHookTemplates } from '@/hooks/useHookTemplateLibrary';
-import { useAuthorizedActor } from '@/hooks/useAuthorizedActor';
+import { useBackendHealth } from '@/hooks/useBackendHealth';
 import { toast } from 'sonner';
+import { isStoppedCanisterError } from '@/utils/canisterErrors';
+import { copyToClipboard } from '@/utils/clipboard';
 import type { HookTemplate } from '@/backend';
 
 export default function HookTemplateLibraryPage() {
-  const { isInitializing } = useAuthorizedActor();
+  // Check backend health first
+  const { 
+    data: healthStatus, 
+    isLoading: isHealthLoading, 
+    isError: isHealthError,
+    error: healthError,
+    refetch: refetchHealth 
+  } = useBackendHealth();
+
+  const isBackendAvailable = healthStatus === true;
   
-  const { data: templates, isLoading, isError, error, refetch } = useGetHookTemplates();
+  const { data: templates, isLoading: isTemplatesLoading, isError: isTemplatesError, error: templatesError, refetch: refetchTemplates } = useGetHookTemplates(isBackendAvailable);
   const saveMutation = useSaveHookTemplates();
 
   const [localTemplates, setLocalTemplates] = useState<HookTemplate[]>([
@@ -50,11 +61,11 @@ export default function HookTemplateLibraryPage() {
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(template.content);
+    const result = await copyToClipboard(template.content);
+    if (result.success) {
       toast.success(`Hook ${index + 1} copied to clipboard!`);
-    } catch (err) {
-      toast.error('Failed to copy to clipboard');
+    } else {
+      toast.error(result.error || 'Failed to copy to clipboard');
     }
   };
 
@@ -67,22 +78,20 @@ export default function HookTemplateLibraryPage() {
     }
   };
 
-  // Show loading state while auth is initializing
-  if (isInitializing) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Hook Template Library</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Save and manage your hook templates for quick access
-          </p>
-        </div>
-        <Skeleton className="h-64 w-full" />
-        <Skeleton className="h-64 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
+  const handleRetry = async () => {
+    // Re-check health first
+    const healthResult = await refetchHealth();
+    
+    // If health check succeeds, refetch templates
+    if (healthResult.data === true) {
+      refetchTemplates();
+    }
+  };
+
+  // Detect stopped canister error
+  const hasStoppedCanisterError = isHealthError && isStoppedCanisterError(healthError);
+  const hasDataError = isTemplatesError && isStoppedCanisterError(templatesError);
+  const showStoppedError = hasStoppedCanisterError || hasDataError;
 
   return (
     <div className="space-y-6">
@@ -96,7 +105,7 @@ export default function HookTemplateLibraryPage() {
         </div>
         <Button 
           onClick={handleSave} 
-          disabled={saveMutation.isPending}
+          disabled={saveMutation.isPending || !isBackendAvailable}
           size="default" 
           className="w-full sm:w-auto"
         >
@@ -114,13 +123,35 @@ export default function HookTemplateLibraryPage() {
         </Button>
       </div>
 
-      {/* Error Alert */}
-      {isError && (
+      {/* Backend Unavailable Error */}
+      {showStoppedError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Backend Service Unavailable</AlertTitle>
+          <AlertDescription className="flex flex-col gap-3 mt-2">
+            <span>
+              The backend service is currently stopped or unreachable. Please start the canister or contact support if the issue persists.
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRetry}
+              className="w-fit"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Other Errors */}
+      {isTemplatesError && !showStoppedError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
-            <span>Failed to load templates: {error?.message || 'Unknown error'}</span>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <span>Failed to load templates: {templatesError?.message || 'Unknown error'}</span>
+            <Button variant="outline" size="sm" onClick={() => refetchTemplates()}>
               Retry
             </Button>
           </AlertDescription>
@@ -128,7 +159,7 @@ export default function HookTemplateLibraryPage() {
       )}
 
       {/* Hook Templates */}
-      {isLoading ? (
+      {isHealthLoading || isTemplatesLoading ? (
         <div className="space-y-6">
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-64 w-full" />
@@ -160,20 +191,19 @@ export default function HookTemplateLibraryPage() {
                   <Label htmlFor={`title-${index}`}>Title</Label>
                   <Input
                     id={`title-${index}`}
-                    placeholder="e.g., Problem-Solution Hook"
                     value={template.title}
                     onChange={(e) => handleTitleChange(index, e.target.value)}
+                    placeholder="e.g., Question Hook, Curiosity Hook, Value Hook"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`content-${index}`}>Hook Content</Label>
                   <Textarea
                     id={`content-${index}`}
-                    placeholder="Write your hook template here..."
                     value={template.content}
                     onChange={(e) => handleContentChange(index, e.target.value)}
+                    placeholder="Write your hook template here..."
                     rows={6}
-                    className="resize-none"
                   />
                 </div>
               </CardContent>

@@ -20,6 +20,8 @@ export interface HookTemplate {
 }
 export interface FacebookOutreachEntry {
     id: bigint;
+    typeOfInterest: TypeOfInterest;
+    owner: Principal;
     createdAt: bigint;
     postContent: string;
     responseStatus: ResponseStatus;
@@ -28,6 +30,7 @@ export interface FacebookOutreachEntry {
     datePosted: string;
     groupUrl: string;
     numComments: bigint;
+    craftCategory: CraftCategory;
     groupName: string;
     attachment?: ExternalBlob;
     followUpDate: string;
@@ -35,11 +38,21 @@ export interface FacebookOutreachEntry {
 export interface UserProfile {
     name: string;
 }
+export enum CraftCategory {
+    CandleMaking = "CandleMaking",
+    SoapMaking = "SoapMaking",
+    SplatterRoom = "SplatterRoom"
+}
 export enum ResponseStatus {
     LeadsGenerated = "LeadsGenerated",
     NoResponse = "NoResponse",
     ActiveDiscussion = "ActiveDiscussion",
     NegativeFeedback = "NegativeFeedback"
+}
+export enum TypeOfInterest {
+    Availability = "Availability",
+    Price = "Price",
+    GroupBooking = "GroupBooking"
 }
 export enum UserRole {
     admin = "admin",
@@ -48,7 +61,7 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createEntry(groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
+    createEntry(groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, craftCategory: CraftCategory, typeOfInterest: TypeOfInterest, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
     deleteEntry(id: bigint): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -58,11 +71,12 @@ export interface backendInterface {
     getGroupResponseSummary(): Promise<Array<[string, bigint]>>;
     getHookTemplatesForCaller(): Promise<Array<HookTemplate>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    health(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     listAllGroupNotes(): Promise<Array<[string, string]>>;
     listEntries(page: bigint, pageSize: bigint): Promise<Array<FacebookOutreachEntry>>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveHookTemplates(templates: Array<HookTemplate>): Promise<void>;
     setGroupNotes(groupUrl: string, notes: string): Promise<void>;
-    updateEntry(id: bigint, groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
+    updateEntry(id: bigint, groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, craftCategory: CraftCategory, typeOfInterest: TypeOfInterest, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
 }
