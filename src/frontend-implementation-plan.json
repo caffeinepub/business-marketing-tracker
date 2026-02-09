@@ -1,101 +1,30 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Keep Dashboard/Hook Library usable anonymously; improve stopped-canister UX and Live smoke-test readiness",
+  "title": "Add Lead Contact Info field to outreach entry create/edit and display",
   "requirements": [
     {
-      "id": "REQ-43",
-      "summary": "Keep Dashboard and Hook Template Library accessible in anonymous mode while preserving sticky header, Add Entry, Craft Category, and Image Upload",
+      "id": "REQ-56",
+      "summary": "Add a persisted “Lead Contact Info” text field to outreach entries in the UI (create/edit + visible display).",
       "acceptanceCriteria": [
-        "In a fresh session with no Internet Identity login and no admin token, Dashboard renders its main content (charts/cards/table) and can load data when the backend is available.",
-        "In a fresh session with no Internet Identity login and no admin token, Hook Template Library renders its main content and can load/save templates when the backend is available.",
-        "Dashboard header remains sticky on mobile and the \"Add Entry\" button remains visible and functional.",
-        "Entry form still includes a required Craft Category dropdown and an Image Upload field, and these remain functional in create/update flows."
+        "Frontend: the Add/Edit Entry form includes a labeled text input \"Lead Contact Info\" that is saved when creating an entry and is pre-filled when editing an existing entry.",
+        "Frontend: after saving, the Dashboard refreshes via existing React Query invalidation and the saved \"Lead Contact Info\" value is visible somewhere in the entry UI (either a table column, a row detail/expanded view, or an edit view that clearly shows the persisted value)."
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/hooks/useAuthorizedActor.ts",
-          "operation": "modify",
-          "description": "Confirm/adjust the authorized-actor selection so anonymous mode always yields a usable actor (no sign-in wall) and React Query enablement remains compatible with anonymous usage. Use the core-infrastructure component patterns for backend connection configuration. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "modify",
-          "description": "Ensure Dashboard never gates rendering behind authentication, continues to load via the anonymous actor when available, and preserves the existing sticky header and functional \"Add Entry\" button behavior (including in anonymous mode)."
-        },
-        {
-          "path": "frontend/src/pages/HookTemplateLibraryPage.tsx",
-          "operation": "modify",
-          "description": "Ensure Hook Template Library never gates rendering behind authentication and continues to load/save templates using the anonymous actor when available (no sign-in wall)."
-        },
         {
           "path": "frontend/src/components/entries/EntryFormDialog.tsx",
           "operation": "modify",
-          "description": "Verify the Entry create/update flow still includes and enforces the required Craft Category selection and continues to pass optional image attachments through ExternalBlob. Use the blob-storage component model (ExternalBlob) for attachment handling. Verify the component's usage instructions before implementing."
+          "description": "Add a new form field (react-hook-form) for \"Lead Contact Info\" and wire it into create/update payloads: include it in FormData, reset defaults, pre-fill from editingEntry.leadContactInfo, and submit it along with the existing fields. Use existing shadcn-ui Input/Label for the new control; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/entries/ImageUploadField.tsx",
+          "path": "frontend/src/hooks/useOutreachMutations.ts",
           "operation": "modify",
-          "description": "Confirm Image Upload remains visible and functional (select/replace/remove/preview) for Add/Edit entry flows without requiring authentication. Use the blob-storage component model (ExternalBlob direct URL usage) where applicable. Verify the component's usage instructions before implementing."
+          "description": "Extend create/update entry mutations to accept leadContactInfo and pass it to the backend createEntry/updateEntry calls in the correct argument order (matching frontend/src/backend.d.ts). Ensure existing React Query invalidation behavior remains unchanged."
         },
         {
-          "path": "frontend/src/utils/canisterErrors.ts",
+          "path": "frontend/src/components/entries/EntriesTable.tsx",
           "operation": "modify",
-          "description": "Adjust user-facing authorization error messaging so the UI does not imply sign-in is required for Dashboard/Hook Library access, while still handling unexpected authorization failures gracefully in English."
-        }
-      ]
-    },
-    {
-      "id": "REQ-44",
-      "summary": "Improve stopped-canister/unreachable handling using backend health checks with a clear unavailable state and working Retry",
-      "acceptanceCriteria": [
-        "When the backend canister is stopped/unreachable, both Dashboard and Hook Template Library show the existing \"Backend Service Unavailable\" error state with a working Retry action.",
-        "When the backend canister is running, the frontend health check succeeds and normal data queries proceed without showing the stopped-canister error state.",
-        "Live environment no longer shows persistent \"Canister is stopped\" errors during normal use when the canister is running."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useBackendHealth.ts",
-          "operation": "modify",
-          "description": "Refine health-check query behavior (enablement, retries, and caching) to reliably distinguish between healthy vs unreachable states while remaining compatible with anonymous mode. Use the core-infrastructure component patterns for backend connection configuration. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/canisterErrors.ts",
-          "operation": "modify",
-          "description": "Expand stopped/unreachable detection to cover common network/unreachable failures (while avoiding false positives) so \"Backend Service Unavailable\" appears only when the canister is stopped/unreachable."
-        },
-        {
-          "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "modify",
-          "description": "Fix the Retry flow so it re-checks health and then re-attempts data loading based on the *new* health result (avoid using stale isBackendAvailable state). Keep the existing \"Backend Service Unavailable\" UI and sticky header behavior intact."
-        },
-        {
-          "path": "frontend/src/pages/HookTemplateLibraryPage.tsx",
-          "operation": "modify",
-          "description": "Fix the Retry flow so it re-checks health and then re-attempts template loading/saving based on the *new* health result (avoid using stale isBackendAvailable state). Keep the existing \"Backend Service Unavailable\" UI intact."
-        }
-      ]
-    },
-    {
-      "id": "REQ-45",
-      "summary": "Prepare for Live deploy verification by documenting a quick Live smoke test focused on anonymous usability and key UI elements",
-      "acceptanceCriteria": [
-        "Live environment loads the latest frontend build.",
-        "Backend canister is running in Live and responds to `health()` with `true`.",
-        "Smoke test in Live confirms Dashboard and Hook Template Library function without signing in.",
-        "Smoke test in Live confirms the sticky Dashboard header and functional \"Add Entry\" button.",
-        "Smoke test in Live confirms the Entry form includes Craft Category dropdown and Image Upload field and can save an entry successfully."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/docs/live-smoke-test.md",
-          "operation": "create",
-          "description": "Add a concise Live smoke-test checklist covering: anonymous access to Dashboard and Hook Library, verifying sticky header + \"Add Entry\", and confirming Craft Category + Image Upload are present and that an entry can be saved when backend is available (English only)."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Add a small, non-intrusive way to access the Live smoke-test checklist from within the app UI (e.g., a footer link) without adding new top-level routes."
+          "description": "Display the persisted leadContactInfo value in the entries UI (e.g., add a \"Lead Contact Info\" column with a readable/truncated cell). Use existing shadcn-ui Table primitives already in this file; verify the component's usage instructions before implementing."
         }
       ]
     }

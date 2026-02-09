@@ -2,12 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-ensure-the-frontend-keeps-dashboard-and-hook-template-library-accessible-in-anonymous-mode-no-sign-in-wall-while-retaining-the-existing-sticky-dashboard-header-with-the-add-entry-button-and-keeping-the-craft-category-dropdown-and-image-upload-field-in-the-add-edit-entry-form",
-      "featureTitle": "Ensure the frontend keeps Dashboard and Hook Template Library accessible in anonymous mode (no sign-in wall), while retaining the existing sticky Dashboard header with the \"Add Entry\" button, and keeping the Craft Category dropdown and Image Upload field in the Add/Edit Entry form.",
+      "featureId": "feature-add-a-new-text-field-named-lead-contact-info-to-each-outreach-entry-and-persist-it-end-to-end-update-the-motoko-facebookoutreachentry-record-and-all-related-create-update-list-get-flows-to-store-and-return-this-value-for-each-entry",
+      "featureTitle": "Add a new text field named \"Lead Contact Info\" to each outreach entry and persist it end-to-end: update the Motoko `FacebookOutreachEntry` record and all related create/update/list/get flows to store and return this value for each entry.",
       "files": [
-        "frontend/src/pages/DashboardPage.tsx",
-        "frontend/src/pages/HookTemplateLibraryPage.tsx",
-        "frontend/src/utils/canisterErrors.ts"
+        "frontend/src/components/entries/EntriesTable.tsx",
+        "frontend/src/components/entries/EntryFormDialog.tsx",
+        "frontend/src/hooks/useOutreachMutations.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -19,51 +19,7 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-43"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-resolve-the-stopped-canister-availability-issue-for-live-by-ensuring-the-backend-canister-is-running-restarted-and-that-the-deployed-frontend-uses-the-backend-health-check-to-show-a-clear-backend-service-unavailable-state-only-when-the-canister-is-stopped-unreachable-with-a-retry-action-that-re-attempts-loading",
-      "featureTitle": "Resolve the stopped-canister availability issue for Live by ensuring the backend canister is running/restarted and that the deployed frontend uses the backend health check to show a clear \"Backend Service Unavailable\" state only when the canister is stopped/unreachable, with a Retry action that re-attempts loading.",
-      "files": [
-        "frontend/src/hooks/useBackendHealth.ts",
-        "frontend/src/pages/DashboardPage.tsx",
-        "frontend/src/pages/HookTemplateLibraryPage.tsx",
-        "frontend/src/utils/canisterErrors.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-44"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-deploy-the-current-draft-build-to-live-after-applying-the-above-fixes-and-perform-a-quick-smoke-test-in-live-to-confirm-1-dashboard-and-hook-template-library-are-usable-without-sign-in-2-dashboard-header-is-sticky-with-add-entry-and-3-the-entry-form-includes-craft-category-and-image-upload",
-      "featureTitle": "Deploy the current draft build to Live after applying the above fixes, and perform a quick smoke test in Live to confirm: (1) Dashboard and Hook Template Library are usable without sign-in, (2) Dashboard header is sticky with \"Add Entry\", and (3) the Entry form includes Craft Category and Image Upload.",
-      "files": [
-        "frontend/docs/live-smoke-test.md",
-        "frontend/src/components/layout/AppLayout.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-45"
+        "REQ-56"
       ],
       "confidence": "high"
     }

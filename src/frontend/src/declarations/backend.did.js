@@ -40,6 +40,15 @@ export const TypeOfInterest = IDL.Variant({
   'Price' : IDL.Null,
   'GroupBooking' : IDL.Null,
 });
+export const EventType = IDL.Variant({
+  'GeneralDIYIndividual' : IDL.Null,
+  'BirthdayPartyKids' : IDL.Null,
+  'BirthdayPartyAdult' : IDL.Null,
+  'BacheloretteBridalShower' : IDL.Null,
+  'GirlsNightOut' : IDL.Null,
+  'CorporateTeamBuilding' : IDL.Null,
+  'FieldTrips' : IDL.Null,
+});
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const FacebookOutreachEntry = IDL.Record({
   'id' : IDL.Nat,
@@ -53,15 +62,26 @@ export const FacebookOutreachEntry = IDL.Record({
   'datePosted' : IDL.Text,
   'groupUrl' : IDL.Text,
   'numComments' : IDL.Nat,
+  'leadContactInfo' : IDL.Text,
   'craftCategory' : CraftCategory,
   'groupName' : IDL.Text,
   'attachment' : IDL.Opt(ExternalBlob),
   'followUpDate' : IDL.Text,
+  'eventType' : EventType,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const HookTemplate = IDL.Record({
   'title' : IDL.Text,
   'content' : IDL.Text,
+});
+export const InquirySummary = IDL.Record({
+  'girlsNightOut' : IDL.Nat,
+  'generalDIY' : IDL.Nat,
+  'birthdayPartyKids' : IDL.Nat,
+  'birthdayPartyAdult' : IDL.Nat,
+  'corporateTeamBuilding' : IDL.Nat,
+  'fieldTrips' : IDL.Nat,
+  'bacheloretteBridalShower' : IDL.Nat,
 });
 
 export const idlService = IDL.Service({
@@ -105,6 +125,8 @@ export const idlService = IDL.Service({
         IDL.Text,
         CraftCategory,
         TypeOfInterest,
+        EventType,
+        IDL.Text,
         IDL.Opt(ExternalBlob),
       ],
       [FacebookOutreachEntry],
@@ -130,6 +152,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(HookTemplate)],
       ['query'],
     ),
+  'getInquirySummaryByEventType' : IDL.Func([], [InquirySummary], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -163,6 +186,8 @@ export const idlService = IDL.Service({
         IDL.Text,
         CraftCategory,
         TypeOfInterest,
+        EventType,
+        IDL.Text,
         IDL.Opt(ExternalBlob),
       ],
       [FacebookOutreachEntry],
@@ -205,6 +230,15 @@ export const idlFactory = ({ IDL }) => {
     'Price' : IDL.Null,
     'GroupBooking' : IDL.Null,
   });
+  const EventType = IDL.Variant({
+    'GeneralDIYIndividual' : IDL.Null,
+    'BirthdayPartyKids' : IDL.Null,
+    'BirthdayPartyAdult' : IDL.Null,
+    'BacheloretteBridalShower' : IDL.Null,
+    'GirlsNightOut' : IDL.Null,
+    'CorporateTeamBuilding' : IDL.Null,
+    'FieldTrips' : IDL.Null,
+  });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
   const FacebookOutreachEntry = IDL.Record({
     'id' : IDL.Nat,
@@ -218,13 +252,24 @@ export const idlFactory = ({ IDL }) => {
     'datePosted' : IDL.Text,
     'groupUrl' : IDL.Text,
     'numComments' : IDL.Nat,
+    'leadContactInfo' : IDL.Text,
     'craftCategory' : CraftCategory,
     'groupName' : IDL.Text,
     'attachment' : IDL.Opt(ExternalBlob),
     'followUpDate' : IDL.Text,
+    'eventType' : EventType,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const HookTemplate = IDL.Record({ 'title' : IDL.Text, 'content' : IDL.Text });
+  const InquirySummary = IDL.Record({
+    'girlsNightOut' : IDL.Nat,
+    'generalDIY' : IDL.Nat,
+    'birthdayPartyKids' : IDL.Nat,
+    'birthdayPartyAdult' : IDL.Nat,
+    'corporateTeamBuilding' : IDL.Nat,
+    'fieldTrips' : IDL.Nat,
+    'bacheloretteBridalShower' : IDL.Nat,
+  });
   
   return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -267,6 +312,8 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
           CraftCategory,
           TypeOfInterest,
+          EventType,
+          IDL.Text,
           IDL.Opt(ExternalBlob),
         ],
         [FacebookOutreachEntry],
@@ -292,6 +339,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(HookTemplate)],
         ['query'],
       ),
+    'getInquirySummaryByEventType' : IDL.Func([], [InquirySummary], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -325,6 +373,8 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
           CraftCategory,
           TypeOfInterest,
+          EventType,
+          IDL.Text,
           IDL.Opt(ExternalBlob),
         ],
         [FacebookOutreachEntry],

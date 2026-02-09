@@ -1,62 +1,43 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T07:23:33.722Z",
-  "summary": "Diff adds frontend stopped-canister health checking with a Retry flow and keeps Dashboard/Hook Library rendering without an explicit sign-in gate, plus a Live smoke-test checklist document. However, backend authorization changes required for anonymous access are not evidenced; the shown backend code still traps as Unauthorized for non-user callers (e.g., createEntry). Deployment/restart actions for Live are also not evidenced in the diff.",
+  "generatedAt": "2026-02-09T08:21:41.756Z",
+  "summary": "The diff clearly adds the new backend field `leadContactInfo` (with a migration) and wires it into frontend mutations and the entries table UI. However, the diff summary is truncated for `backend/main.mo` and `EntryFormDialog.tsx`, so several acceptance criteria around anonymous access for multiple backend methods and the exact presence/behavior of the Lead Contact Info input (label + edit prefill) and hook-template anonymous usability are not fully evidenced.",
   "missing_requirements": [
     {
-      "id": "REQ-42",
-      "requirement": "Backend methods used by Dashboard and Hook Template Library must be usable without signing in (no Unauthorized trap for anonymous callers), including listEntries/getFollowUpToday/getGroupResponseSummary/getGroupNotes and create/update/delete/setGroupNotes, plus getHookTemplatesForCaller/saveHookTemplates.",
-      "reason": "In the provided backend snippet, authorization checks still trap for non-user callers (e.g., createEntry), which conflicts with the requirement that anonymous callers must not receive Unauthorized traps. The diff summary does not show removals/relaxation of auth checks for the listed methods, nor changes for hook template methods.",
+      "id": "REQ-55",
+      "requirement": "Remove backend authorization barriers so anonymous users can create/read/update/delete entries and read/write group notes without \"Unauthorized\" traps for the listed core methods.",
+      "reason": "Although `backend/main.mo` indicates \"Facebook Outreach Entry CRUD (anonymous access allowed)\" and shows `createEntry` signature changes, the diff is truncated and does not show the implementations/authorization checks for `listEntries`, `getEntry`, `updateEntry`, `deleteEntry`, `getFollowUpToday`, `getGroupResponseSummary`, `getInquirySummaryByEventType`, `getGroupNotes`, and `setGroupNotes`. Therefore, it is not evidenced that anonymous calls to all these methods no longer trap with \"Unauthorized\".",
       "evidence": [
-        "backend/main.mo"
+        "backend/main.mo (truncated; only shows user-profile auth checks and start of createEntry)"
       ]
     },
     {
-      "id": "REQ-44",
-      "requirement": "Ensure Live stopped-canister availability is resolved by ensuring the backend canister is running/restarted (Live) and frontend shows 'Backend Service Unavailable' only when stopped/unreachable with a Retry action.",
-      "reason": "Frontend health-check + stopped-canister UI handling is present, but there is no evidence in the diff summary of any Live canister restart/running assurance or deployment/infrastructure steps to prevent persistent 'Canister is stopped' errors when the canister is actually running.",
+      "id": "REQ-56",
+      "requirement": "Frontend Add/Edit Entry form includes a labeled text input \"Lead Contact Info\" that is saved on create and pre-filled on edit.",
+      "reason": "The form type includes `leadContactInfo`, and mutations/table display reference it, but the truncated `EntryFormDialog.tsx` snippet does not show the actual rendered labeled input field nor the edit prefill/reset logic that sets the value when editing an existing entry.",
       "evidence": [
-        "frontend/src/hooks/useBackendHealth.ts",
-        "frontend/src/pages/DashboardPage.tsx",
-        "frontend/src/pages/HookTemplateLibraryPage.tsx"
+        "frontend/src/components/entries/EntryFormDialog.tsx (truncated; shows FormData includes leadContactInfo but not the input UI)"
       ]
     },
     {
-      "id": "REQ-45",
-      "requirement": "Deploy the current draft build to Live after fixes and perform a Live smoke test (confirm anonymous usability, sticky header with Add Entry, Craft Category + Image Upload, and backend health() returns true).",
-      "reason": "The diff adds a smoke-test checklist document, but does not provide evidence of an actual Live deployment, canister state change, or executed smoke test results.",
+      "id": "REQ-57",
+      "requirement": "Allow anonymous callers to use hook-template methods (`getHookTemplatesForCaller`, `saveHookTemplates`) so the Hook Template Library page loads and saves in anonymous mode without authorization failures.",
+      "reason": "No diff evidence is shown for the hook-template methods or any changes to their authorization logic; `backend/main.mo` is truncated and does not include these methods.",
       "evidence": [
-        "frontend/docs/live-smoke-test.md"
+        "backend/main.mo (truncated; hook-template methods/authorization not shown)"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Added an in-app 'Smoke Test' footer button/link that opens /docs/live-smoke-test.md with a tooltip.",
-      "reason": "REQ-45 asks to deploy and perform a smoke test, but does not request adding a UI control in the product to open a smoke-test document.",
-      "evidence": [
-        "frontend/src/components/layout/AppLayout.tsx"
-      ]
-    },
-    {
-      "description": "Footer attribution/year and external link to caffeine.ai added/changed.",
-      "reason": "Not requested by any requirement and could be considered UI/content changes beyond the specified fixes.",
-      "evidence": [
-        "frontend/src/components/layout/AppLayout.tsx"
-      ]
-    }
-  ],
-  "confidence": 0.74,
+  "hallucinated_features": [],
+  "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/docs/live-smoke-test.md",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/hooks/useBackendHealth.ts",
-    "frontend/src/pages/DashboardPage.tsx",
-    "frontend/src/pages/HookTemplateLibraryPage.tsx",
-    "frontend/src/utils/canisterErrors.ts",
+    "frontend/src/components/entries/EntriesTable.tsx",
+    "frontend/src/components/entries/EntryFormDialog.tsx",
+    "frontend/src/hooks/useOutreachMutations.ts",
     "project_state.json"
   ]
 }

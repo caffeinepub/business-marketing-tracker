@@ -92,6 +92,15 @@ export class ExternalBlob {
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
 }
+export interface InquirySummary {
+    girlsNightOut: bigint;
+    generalDIY: bigint;
+    birthdayPartyKids: bigint;
+    birthdayPartyAdult: bigint;
+    corporateTeamBuilding: bigint;
+    fieldTrips: bigint;
+    bacheloretteBridalShower: bigint;
+}
 export interface HookTemplate {
     title: string;
     content: string;
@@ -108,10 +117,12 @@ export interface FacebookOutreachEntry {
     datePosted: string;
     groupUrl: string;
     numComments: bigint;
+    leadContactInfo: string;
     craftCategory: CraftCategory;
     groupName: string;
     attachment?: ExternalBlob;
     followUpDate: string;
+    eventType: EventType;
 }
 export interface _CaffeineStorageCreateCertificateResult {
     method: string;
@@ -128,6 +139,15 @@ export enum CraftCategory {
     CandleMaking = "CandleMaking",
     SoapMaking = "SoapMaking",
     SplatterRoom = "SplatterRoom"
+}
+export enum EventType {
+    GeneralDIYIndividual = "GeneralDIYIndividual",
+    BirthdayPartyKids = "BirthdayPartyKids",
+    BirthdayPartyAdult = "BirthdayPartyAdult",
+    BacheloretteBridalShower = "BacheloretteBridalShower",
+    GirlsNightOut = "GirlsNightOut",
+    CorporateTeamBuilding = "CorporateTeamBuilding",
+    FieldTrips = "FieldTrips"
 }
 export enum ResponseStatus {
     LeadsGenerated = "LeadsGenerated",
@@ -154,7 +174,7 @@ export interface backendInterface {
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createEntry(groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, craftCategory: CraftCategory, typeOfInterest: TypeOfInterest, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
+    createEntry(groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, craftCategory: CraftCategory, typeOfInterest: TypeOfInterest, eventType: EventType, leadContactInfo: string, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
     deleteEntry(id: bigint): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -163,6 +183,7 @@ export interface backendInterface {
     getGroupNotes(groupUrl: string): Promise<string | null>;
     getGroupResponseSummary(): Promise<Array<[string, bigint]>>;
     getHookTemplatesForCaller(): Promise<Array<HookTemplate>>;
+    getInquirySummaryByEventType(): Promise<InquirySummary>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     health(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
@@ -171,9 +192,9 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveHookTemplates(templates: Array<HookTemplate>): Promise<void>;
     setGroupNotes(groupUrl: string, notes: string): Promise<void>;
-    updateEntry(id: bigint, groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, craftCategory: CraftCategory, typeOfInterest: TypeOfInterest, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
+    updateEntry(id: bigint, groupName: string, groupUrl: string, datePosted: string, postContent: string, numReactions: bigint, numComments: bigint, responseStatus: ResponseStatus, followUpDate: string, craftCategory: CraftCategory, typeOfInterest: TypeOfInterest, eventType: EventType, leadContactInfo: string, attachment: ExternalBlob | null): Promise<FacebookOutreachEntry>;
 }
-import type { CraftCategory as _CraftCategory, ExternalBlob as _ExternalBlob, FacebookOutreachEntry as _FacebookOutreachEntry, ResponseStatus as _ResponseStatus, TypeOfInterest as _TypeOfInterest, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { CraftCategory as _CraftCategory, EventType as _EventType, ExternalBlob as _ExternalBlob, FacebookOutreachEntry as _FacebookOutreachEntry, ResponseStatus as _ResponseStatus, TypeOfInterest as _TypeOfInterest, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -288,18 +309,18 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createEntry(arg0: string, arg1: string, arg2: string, arg3: string, arg4: bigint, arg5: bigint, arg6: ResponseStatus, arg7: string, arg8: CraftCategory, arg9: TypeOfInterest, arg10: ExternalBlob | null): Promise<FacebookOutreachEntry> {
+    async createEntry(arg0: string, arg1: string, arg2: string, arg3: string, arg4: bigint, arg5: bigint, arg6: ResponseStatus, arg7: string, arg8: CraftCategory, arg9: TypeOfInterest, arg10: EventType, arg11: string, arg12: ExternalBlob | null): Promise<FacebookOutreachEntry> {
         if (this.processError) {
             try {
-                const result = await this.actor.createEntry(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg6), arg7, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg8), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg9), await to_candid_opt_n16(this._uploadFile, this._downloadFile, arg10));
-                return from_candid_FacebookOutreachEntry_n18(this._uploadFile, this._downloadFile, result);
+                const result = await this.actor.createEntry(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg6), arg7, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg8), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg9), to_candid_EventType_n16(this._uploadFile, this._downloadFile, arg10), arg11, await to_candid_opt_n18(this._uploadFile, this._downloadFile, arg12));
+                return from_candid_FacebookOutreachEntry_n20(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createEntry(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg6), arg7, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg8), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg9), await to_candid_opt_n16(this._uploadFile, this._downloadFile, arg10));
-            return from_candid_FacebookOutreachEntry_n18(this._uploadFile, this._downloadFile, result);
+            const result = await this.actor.createEntry(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg6), arg7, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg8), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg9), to_candid_EventType_n16(this._uploadFile, this._downloadFile, arg10), arg11, await to_candid_opt_n18(this._uploadFile, this._downloadFile, arg12));
+            return from_candid_FacebookOutreachEntry_n20(this._uploadFile, this._downloadFile, result);
         }
     }
     async deleteEntry(arg0: bigint): Promise<void> {
@@ -320,70 +341,70 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserProfile();
-                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getCallerUserProfile();
-            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getCallerUserRole(): Promise<UserRole> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getCallerUserRole();
-                return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getCallerUserRole();
-            return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getEntry(arg0: bigint): Promise<FacebookOutreachEntry> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getEntry(arg0);
-                return from_candid_FacebookOutreachEntry_n18(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getEntry(arg0);
-            return from_candid_FacebookOutreachEntry_n18(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getFollowUpToday(arg0: string): Promise<Array<FacebookOutreachEntry>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getFollowUpToday(arg0);
-                return from_candid_vec_n31(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getFollowUpToday(arg0);
-            return from_candid_vec_n31(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getGroupNotes(arg0: string): Promise<string | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getGroupNotes(arg0);
                 return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getGroupNotes(arg0);
+            const result = await this.actor.getCallerUserProfile();
             return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserRole(): Promise<UserRole> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserRole();
+                return from_candid_UserRole_n33(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserRole();
+            return from_candid_UserRole_n33(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getEntry(arg0: bigint): Promise<FacebookOutreachEntry> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getEntry(arg0);
+                return from_candid_FacebookOutreachEntry_n20(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getEntry(arg0);
+            return from_candid_FacebookOutreachEntry_n20(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getFollowUpToday(arg0: string): Promise<Array<FacebookOutreachEntry>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFollowUpToday(arg0);
+                return from_candid_vec_n35(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFollowUpToday(arg0);
+            return from_candid_vec_n35(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getGroupNotes(arg0: string): Promise<string | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getGroupNotes(arg0);
+                return from_candid_opt_n36(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getGroupNotes(arg0);
+            return from_candid_opt_n36(this._uploadFile, this._downloadFile, result);
         }
     }
     async getGroupResponseSummary(): Promise<Array<[string, bigint]>> {
@@ -414,18 +435,32 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getInquirySummaryByEventType(): Promise<InquirySummary> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getInquirySummaryByEventType();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getInquirySummaryByEventType();
+            return result;
+        }
+    }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserProfile(arg0);
-                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserProfile(arg0);
-            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
         }
     }
     async health(): Promise<boolean> {
@@ -474,14 +509,14 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.listEntries(arg0, arg1);
-                return from_candid_vec_n31(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n35(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.listEntries(arg0, arg1);
-            return from_candid_vec_n31(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n35(this._uploadFile, this._downloadFile, result);
         }
     }
     async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
@@ -526,49 +561,52 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateEntry(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: string, arg5: bigint, arg6: bigint, arg7: ResponseStatus, arg8: string, arg9: CraftCategory, arg10: TypeOfInterest, arg11: ExternalBlob | null): Promise<FacebookOutreachEntry> {
+    async updateEntry(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: string, arg5: bigint, arg6: bigint, arg7: ResponseStatus, arg8: string, arg9: CraftCategory, arg10: TypeOfInterest, arg11: EventType, arg12: string, arg13: ExternalBlob | null): Promise<FacebookOutreachEntry> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateEntry(arg0, arg1, arg2, arg3, arg4, arg5, arg6, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg7), arg8, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg9), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg10), await to_candid_opt_n16(this._uploadFile, this._downloadFile, arg11));
-                return from_candid_FacebookOutreachEntry_n18(this._uploadFile, this._downloadFile, result);
+                const result = await this.actor.updateEntry(arg0, arg1, arg2, arg3, arg4, arg5, arg6, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg7), arg8, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg9), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg10), to_candid_EventType_n16(this._uploadFile, this._downloadFile, arg11), arg12, await to_candid_opt_n18(this._uploadFile, this._downloadFile, arg13));
+                return from_candid_FacebookOutreachEntry_n20(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateEntry(arg0, arg1, arg2, arg3, arg4, arg5, arg6, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg7), arg8, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg9), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg10), await to_candid_opt_n16(this._uploadFile, this._downloadFile, arg11));
-            return from_candid_FacebookOutreachEntry_n18(this._uploadFile, this._downloadFile, result);
+            const result = await this.actor.updateEntry(arg0, arg1, arg2, arg3, arg4, arg5, arg6, to_candid_ResponseStatus_n10(this._uploadFile, this._downloadFile, arg7), arg8, to_candid_CraftCategory_n12(this._uploadFile, this._downloadFile, arg9), to_candid_TypeOfInterest_n14(this._uploadFile, this._downloadFile, arg10), to_candid_EventType_n16(this._uploadFile, this._downloadFile, arg11), arg12, await to_candid_opt_n18(this._uploadFile, this._downloadFile, arg13));
+            return from_candid_FacebookOutreachEntry_n20(this._uploadFile, this._downloadFile, result);
         }
     }
 }
-function from_candid_CraftCategory_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CraftCategory): CraftCategory {
-    return from_candid_variant_n25(_uploadFile, _downloadFile, value);
+function from_candid_CraftCategory_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CraftCategory): CraftCategory {
+    return from_candid_variant_n27(_uploadFile, _downloadFile, value);
 }
-async function from_candid_ExternalBlob_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
+function from_candid_EventType_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _EventType): EventType {
+    return from_candid_variant_n31(_uploadFile, _downloadFile, value);
+}
+async function from_candid_ExternalBlob_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
     return await _downloadFile(value);
 }
-async function from_candid_FacebookOutreachEntry_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _FacebookOutreachEntry): Promise<FacebookOutreachEntry> {
-    return await from_candid_record_n19(_uploadFile, _downloadFile, value);
+async function from_candid_FacebookOutreachEntry_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _FacebookOutreachEntry): Promise<FacebookOutreachEntry> {
+    return await from_candid_record_n21(_uploadFile, _downloadFile, value);
 }
-function from_candid_ResponseStatus_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ResponseStatus): ResponseStatus {
+function from_candid_ResponseStatus_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ResponseStatus): ResponseStatus {
+    return from_candid_variant_n25(_uploadFile, _downloadFile, value);
+}
+function from_candid_TypeOfInterest_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _TypeOfInterest): TypeOfInterest {
     return from_candid_variant_n23(_uploadFile, _downloadFile, value);
 }
-function from_candid_TypeOfInterest_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _TypeOfInterest): TypeOfInterest {
-    return from_candid_variant_n21(_uploadFile, _downloadFile, value);
-}
-function from_candid_UserRole_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
-    return from_candid_variant_n30(_uploadFile, _downloadFile, value);
+function from_candid_UserRole_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n34(_uploadFile, _downloadFile, value);
 }
 function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __CaffeineStorageRefillResult): _CaffeineStorageRefillResult {
     return from_candid_record_n5(_uploadFile, _downloadFile, value);
 }
-async function from_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ExternalBlob]): Promise<ExternalBlob | null> {
-    return value.length === 0 ? null : await from_candid_ExternalBlob_n27(_uploadFile, _downloadFile, value[0]);
+async function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ExternalBlob]): Promise<ExternalBlob | null> {
+    return value.length === 0 ? null : await from_candid_ExternalBlob_n29(_uploadFile, _downloadFile, value[0]);
 }
-function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+function from_candid_opt_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+function from_candid_opt_n36(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
@@ -577,7 +615,7 @@ function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Ar
 function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
 }
-async function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+async function from_candid_record_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     typeOfInterest: _TypeOfInterest;
     owner: Principal;
@@ -589,10 +627,12 @@ async function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promi
     datePosted: string;
     groupUrl: string;
     numComments: bigint;
+    leadContactInfo: string;
     craftCategory: _CraftCategory;
     groupName: string;
     attachment: [] | [_ExternalBlob];
     followUpDate: string;
+    eventType: _EventType;
 }): Promise<{
     id: bigint;
     typeOfInterest: TypeOfInterest;
@@ -605,27 +645,31 @@ async function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promi
     datePosted: string;
     groupUrl: string;
     numComments: bigint;
+    leadContactInfo: string;
     craftCategory: CraftCategory;
     groupName: string;
     attachment?: ExternalBlob;
     followUpDate: string;
+    eventType: EventType;
 }> {
     return {
         id: value.id,
-        typeOfInterest: from_candid_TypeOfInterest_n20(_uploadFile, _downloadFile, value.typeOfInterest),
+        typeOfInterest: from_candid_TypeOfInterest_n22(_uploadFile, _downloadFile, value.typeOfInterest),
         owner: value.owner,
         createdAt: value.createdAt,
         postContent: value.postContent,
-        responseStatus: from_candid_ResponseStatus_n22(_uploadFile, _downloadFile, value.responseStatus),
+        responseStatus: from_candid_ResponseStatus_n24(_uploadFile, _downloadFile, value.responseStatus),
         updatedAt: value.updatedAt,
         numReactions: value.numReactions,
         datePosted: value.datePosted,
         groupUrl: value.groupUrl,
         numComments: value.numComments,
-        craftCategory: from_candid_CraftCategory_n24(_uploadFile, _downloadFile, value.craftCategory),
+        leadContactInfo: value.leadContactInfo,
+        craftCategory: from_candid_CraftCategory_n26(_uploadFile, _downloadFile, value.craftCategory),
         groupName: value.groupName,
-        attachment: record_opt_to_undefined(await from_candid_opt_n26(_uploadFile, _downloadFile, value.attachment)),
-        followUpDate: value.followUpDate
+        attachment: record_opt_to_undefined(await from_candid_opt_n28(_uploadFile, _downloadFile, value.attachment)),
+        followUpDate: value.followUpDate,
+        eventType: from_candid_EventType_n30(_uploadFile, _downloadFile, value.eventType)
     };
 }
 function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
@@ -640,7 +684,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
         topped_up_amount: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.topped_up_amount))
     };
 }
-function from_candid_variant_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     Availability: null;
 } | {
     Price: null;
@@ -649,7 +693,7 @@ function from_candid_variant_n21(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): TypeOfInterest {
     return "Availability" in value ? TypeOfInterest.Availability : "Price" in value ? TypeOfInterest.Price : "GroupBooking" in value ? TypeOfInterest.GroupBooking : value;
 }
-function from_candid_variant_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     LeadsGenerated: null;
 } | {
     NoResponse: null;
@@ -660,7 +704,7 @@ function from_candid_variant_n23(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): ResponseStatus {
     return "LeadsGenerated" in value ? ResponseStatus.LeadsGenerated : "NoResponse" in value ? ResponseStatus.NoResponse : "ActiveDiscussion" in value ? ResponseStatus.ActiveDiscussion : "NegativeFeedback" in value ? ResponseStatus.NegativeFeedback : value;
 }
-function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     CandleMaking: null;
 } | {
     SoapMaking: null;
@@ -669,7 +713,24 @@ function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): CraftCategory {
     return "CandleMaking" in value ? CraftCategory.CandleMaking : "SoapMaking" in value ? CraftCategory.SoapMaking : "SplatterRoom" in value ? CraftCategory.SplatterRoom : value;
 }
-function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    GeneralDIYIndividual: null;
+} | {
+    BirthdayPartyKids: null;
+} | {
+    BirthdayPartyAdult: null;
+} | {
+    BacheloretteBridalShower: null;
+} | {
+    GirlsNightOut: null;
+} | {
+    CorporateTeamBuilding: null;
+} | {
+    FieldTrips: null;
+}): EventType {
+    return "GeneralDIYIndividual" in value ? EventType.GeneralDIYIndividual : "BirthdayPartyKids" in value ? EventType.BirthdayPartyKids : "BirthdayPartyAdult" in value ? EventType.BirthdayPartyAdult : "BacheloretteBridalShower" in value ? EventType.BacheloretteBridalShower : "GirlsNightOut" in value ? EventType.GirlsNightOut : "CorporateTeamBuilding" in value ? EventType.CorporateTeamBuilding : "FieldTrips" in value ? EventType.FieldTrips : value;
+}
+function from_candid_variant_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
 } | {
     user: null;
@@ -678,13 +739,16 @@ function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-async function from_candid_vec_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_FacebookOutreachEntry>): Promise<Array<FacebookOutreachEntry>> {
-    return await Promise.all(value.map(async (x)=>await from_candid_FacebookOutreachEntry_n18(_uploadFile, _downloadFile, x)));
+async function from_candid_vec_n35(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_FacebookOutreachEntry>): Promise<Array<FacebookOutreachEntry>> {
+    return await Promise.all(value.map(async (x)=>await from_candid_FacebookOutreachEntry_n20(_uploadFile, _downloadFile, x)));
 }
 function to_candid_CraftCategory_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CraftCategory): _CraftCategory {
     return to_candid_variant_n13(_uploadFile, _downloadFile, value);
 }
-async function to_candid_ExternalBlob_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob): Promise<_ExternalBlob> {
+function to_candid_EventType_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: EventType): _EventType {
+    return to_candid_variant_n17(_uploadFile, _downloadFile, value);
+}
+async function to_candid_ExternalBlob_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob): Promise<_ExternalBlob> {
     return await _uploadFile(value);
 }
 function to_candid_ResponseStatus_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ResponseStatus): _ResponseStatus {
@@ -702,8 +766,8 @@ function to_candid__CaffeineStorageRefillInformation_n2(_uploadFile: (file: Exte
 function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation | null): [] | [__CaffeineStorageRefillInformation] {
     return value === null ? candid_none() : candid_some(to_candid__CaffeineStorageRefillInformation_n2(_uploadFile, _downloadFile, value));
 }
-async function to_candid_opt_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob | null): Promise<[] | [_ExternalBlob]> {
-    return value === null ? candid_none() : candid_some(await to_candid_ExternalBlob_n17(_uploadFile, _downloadFile, value));
+async function to_candid_opt_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob | null): Promise<[] | [_ExternalBlob]> {
+    return value === null ? candid_none() : candid_some(await to_candid_ExternalBlob_n19(_uploadFile, _downloadFile, value));
 }
 function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     proposed_top_up_amount?: bigint;
@@ -761,6 +825,37 @@ function to_candid_variant_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint
         Price: null
     } : value == TypeOfInterest.GroupBooking ? {
         GroupBooking: null
+    } : value;
+}
+function to_candid_variant_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: EventType): {
+    GeneralDIYIndividual: null;
+} | {
+    BirthdayPartyKids: null;
+} | {
+    BirthdayPartyAdult: null;
+} | {
+    BacheloretteBridalShower: null;
+} | {
+    GirlsNightOut: null;
+} | {
+    CorporateTeamBuilding: null;
+} | {
+    FieldTrips: null;
+} {
+    return value == EventType.GeneralDIYIndividual ? {
+        GeneralDIYIndividual: null
+    } : value == EventType.BirthdayPartyKids ? {
+        BirthdayPartyKids: null
+    } : value == EventType.BirthdayPartyAdult ? {
+        BirthdayPartyAdult: null
+    } : value == EventType.BacheloretteBridalShower ? {
+        BacheloretteBridalShower: null
+    } : value == EventType.GirlsNightOut ? {
+        GirlsNightOut: null
+    } : value == EventType.CorporateTeamBuilding ? {
+        CorporateTeamBuilding: null
+    } : value == EventType.FieldTrips ? {
+        FieldTrips: null
     } : value;
 }
 function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {

@@ -6,6 +6,7 @@ import SuccessRateChart from '@/components/dashboard/SuccessRateChart';
 import FollowUpTodayList from '@/components/dashboard/FollowUpTodayList';
 import DaysSinceLastPostCard from '@/components/dashboard/DaysSinceLastPostCard';
 import WinningPostsCard from '@/components/dashboard/WinningPostsCard';
+import EventTypeInquiryRankingCard from '@/components/dashboard/EventTypeInquiryRankingCard';
 import EntryFormDialog from '@/components/entries/EntryFormDialog';
 import { useOutreachQueries } from '@/hooks/useOutreachQueries';
 import { useBackendHealth } from '@/hooks/useBackendHealth';
@@ -32,6 +33,7 @@ export default function DashboardPage() {
   const { data: entries, isLoading: isEntriesLoading, isError: isEntriesError, error: entriesError, refetch: refetchEntries } = useOutreachQueries.useListEntries(isBackendAvailable);
   const { data: todayFollowUps, isLoading: isLoadingToday, refetch: refetchToday } = useOutreachQueries.useFollowUpToday(isBackendAvailable);
   const { data: groupSummary, isLoading: isLoadingSummary, refetch: refetchSummary } = useOutreachQueries.useGroupSummary(isBackendAvailable);
+  const { data: inquirySummary, isLoading: isLoadingInquirySummary, refetch: refetchInquirySummary } = useOutreachQueries.useInquirySummary(isBackendAvailable);
 
   const handleAddNew = () => {
     setEditingEntryId(null);
@@ -57,6 +59,7 @@ export default function DashboardPage() {
       refetchEntries();
       refetchToday();
       refetchSummary();
+      refetchInquirySummary();
     }
   };
 
@@ -110,6 +113,13 @@ export default function DashboardPage() {
         <Skeleton className="h-32 w-full" />
       ) : isBackendAvailable ? (
         <FollowUpTodayList entries={todayFollowUps || []} onEdit={handleEdit} />
+      ) : null}
+
+      {/* Event Type Inquiry Ranking */}
+      {isHealthLoading || isLoadingInquirySummary ? (
+        <Skeleton className="h-64 w-full" />
+      ) : isBackendAvailable ? (
+        <EventTypeInquiryRankingCard summary={inquirySummary} />
       ) : null}
 
       {/* Winning Posts Section */}
@@ -166,6 +176,7 @@ export default function DashboardPage() {
         onOpenChange={setIsFormOpen}
         editingEntryId={editingEntryId}
         onClose={handleCloseForm}
+        isBackendAvailable={isBackendAvailable}
       />
     </div>
   );

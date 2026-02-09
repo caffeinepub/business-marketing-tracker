@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthorizedActor } from './useAuthorizedActor';
-import type { FacebookOutreachEntry } from '@/backend';
+import type { FacebookOutreachEntry, InquirySummary } from '@/backend';
 import { getTodayString } from '@/utils/dateFormat';
 
 const QUERY_KEYS = {
@@ -8,6 +8,7 @@ const QUERY_KEYS = {
   followUpToday: (authKey: string) => ['outreach', 'followUpToday', authKey],
   groupSummary: (authKey: string) => ['outreach', 'groupSummary', authKey],
   groupNotes: (authKey: string, groupUrl: string) => ['outreach', 'groupNotes', authKey, groupUrl],
+  inquirySummary: (authKey: string) => ['outreach', 'inquirySummary', authKey],
 };
 
 function useListEntries(enabledOverride?: boolean) {
@@ -60,7 +61,7 @@ function useGroupSummary(enabledOverride?: boolean) {
   });
 }
 
-function useGroupNotes(groupUrl: string) {
+function useGroupNotes(groupUrl: string, enabledOverride?: boolean) {
   const { actor, isReadyForQueries, authContextKey } = useAuthorizedActor();
 
   return useQuery<string | null>({
@@ -71,7 +72,25 @@ function useGroupNotes(groupUrl: string) {
       }
       return actor.getGroupNotes(groupUrl);
     },
-    enabled: isReadyForQueries && !!groupUrl,
+    enabled: enabledOverride !== undefined 
+      ? enabledOverride && isReadyForQueries && !!groupUrl 
+      : isReadyForQueries && !!groupUrl,
+    retry: false,
+  });
+}
+
+function useInquirySummary(enabledOverride?: boolean) {
+  const { actor, isReadyForQueries, authContextKey } = useAuthorizedActor();
+
+  return useQuery<InquirySummary>({
+    queryKey: QUERY_KEYS.inquirySummary(authContextKey),
+    queryFn: async () => {
+      if (!actor) {
+        throw new Error('Actor not available');
+      }
+      return actor.getInquirySummaryByEventType();
+    },
+    enabled: enabledOverride !== undefined ? enabledOverride && isReadyForQueries : isReadyForQueries,
     retry: false,
   });
 }
@@ -81,4 +100,5 @@ export const useOutreachQueries = {
   useFollowUpToday,
   useGroupSummary,
   useGroupNotes,
+  useInquirySummary,
 };

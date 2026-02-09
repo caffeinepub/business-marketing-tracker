@@ -13,6 +13,13 @@ import type { Principal } from '@icp-sdk/core/principal';
 export type CraftCategory = { 'CandleMaking' : null } |
   { 'SoapMaking' : null } |
   { 'SplatterRoom' : null };
+export type EventType = { 'GeneralDIYIndividual' : null } |
+  { 'BirthdayPartyKids' : null } |
+  { 'BirthdayPartyAdult' : null } |
+  { 'BacheloretteBridalShower' : null } |
+  { 'GirlsNightOut' : null } |
+  { 'CorporateTeamBuilding' : null } |
+  { 'FieldTrips' : null };
 export type ExternalBlob = Uint8Array;
 export interface FacebookOutreachEntry {
   'id' : bigint,
@@ -26,12 +33,23 @@ export interface FacebookOutreachEntry {
   'datePosted' : string,
   'groupUrl' : string,
   'numComments' : bigint,
+  'leadContactInfo' : string,
   'craftCategory' : CraftCategory,
   'groupName' : string,
   'attachment' : [] | [ExternalBlob],
   'followUpDate' : string,
+  'eventType' : EventType,
 }
 export interface HookTemplate { 'title' : string, 'content' : string }
+export interface InquirySummary {
+  'girlsNightOut' : bigint,
+  'generalDIY' : bigint,
+  'birthdayPartyKids' : bigint,
+  'birthdayPartyAdult' : bigint,
+  'corporateTeamBuilding' : bigint,
+  'fieldTrips' : bigint,
+  'bacheloretteBridalShower' : bigint,
+}
 export type ResponseStatus = { 'LeadsGenerated' : null } |
   { 'NoResponse' : null } |
   { 'ActiveDiscussion' : null } |
@@ -84,6 +102,8 @@ export interface _SERVICE {
       string,
       CraftCategory,
       TypeOfInterest,
+      EventType,
+      string,
       [] | [ExternalBlob],
     ],
     FacebookOutreachEntry
@@ -96,6 +116,7 @@ export interface _SERVICE {
   'getGroupNotes' : ActorMethod<[string], [] | [string]>,
   'getGroupResponseSummary' : ActorMethod<[], Array<[string, bigint]>>,
   'getHookTemplatesForCaller' : ActorMethod<[], Array<HookTemplate>>,
+  'getInquirySummaryByEventType' : ActorMethod<[], InquirySummary>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'health' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -117,6 +138,8 @@ export interface _SERVICE {
       string,
       CraftCategory,
       TypeOfInterest,
+      EventType,
+      string,
       [] | [ExternalBlob],
     ],
     FacebookOutreachEntry

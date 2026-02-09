@@ -50,6 +50,7 @@ export default function EntriesTable({ entries, onEdit }: EntriesTableProps) {
                 <TableHead className="min-w-[120px]">Status</TableHead>
                 <TableHead className="text-right min-w-[80px]">Reactions</TableHead>
                 <TableHead className="text-right min-w-[90px]">Comments</TableHead>
+                <TableHead className="min-w-[150px]">Lead Contact</TableHead>
                 <TableHead className="min-w-[100px]">Follow-up</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
@@ -85,6 +86,11 @@ export default function EntriesTable({ entries, onEdit }: EntriesTableProps) {
                   </TableCell>
                   <TableCell className="text-right">{entry.numReactions.toString()}</TableCell>
                   <TableCell className="text-right">{entry.numComments.toString()}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    <span className="truncate max-w-[150px] inline-block" title={entry.leadContactInfo}>
+                      {entry.leadContactInfo || '—'}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {formatDisplayDate(entry.followUpDate)}
                   </TableCell>

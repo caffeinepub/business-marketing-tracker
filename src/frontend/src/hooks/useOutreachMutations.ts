@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthorizedActor } from './useAuthorizedActor';
-import type { FacebookOutreachEntry, ResponseStatus, CraftCategory, TypeOfInterest } from '@/backend';
+import type { FacebookOutreachEntry, ResponseStatus, CraftCategory, TypeOfInterest, EventType } from '@/backend';
 import { ExternalBlob } from '@/backend';
 
 function useCreateEntry() {
@@ -19,6 +19,8 @@ function useCreateEntry() {
       followUpDate: string;
       craftCategory: CraftCategory;
       typeOfInterest: TypeOfInterest;
+      eventType: EventType;
+      leadContactInfo: string;
       attachment: ExternalBlob | null;
     }) => {
       if (!actor) throw new Error('Actor not available');
@@ -34,6 +36,8 @@ function useCreateEntry() {
         data.followUpDate,
         data.craftCategory,
         data.typeOfInterest,
+        data.eventType,
+        data.leadContactInfo,
         data.attachment
       );
     },
@@ -65,6 +69,8 @@ function useUpdateEntry() {
       followUpDate: string;
       craftCategory: CraftCategory;
       typeOfInterest: TypeOfInterest;
+      eventType: EventType;
+      leadContactInfo: string;
       attachment: ExternalBlob | null;
     }) => {
       if (!actor) throw new Error('Actor not available');
@@ -81,6 +87,8 @@ function useUpdateEntry() {
         data.followUpDate,
         data.craftCategory,
         data.typeOfInterest,
+        data.eventType,
+        data.leadContactInfo,
         data.attachment
       );
     },

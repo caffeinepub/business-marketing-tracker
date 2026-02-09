@@ -1,84 +1,60 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T07:23:33.726Z",
+  "generatedAt": "2026-02-09T08:21:41.759Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 3,
+    "total": 3,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-42",
-        "summary": "Update backend authorization so the Dashboard and Hook Template Library are fully usable without signing in (no Internet Identity and no admin token), meaning the backend methods used by these pages must not trap with \"Unauthorized\" for anonymous callers.",
+        "id": "REQ-55",
+        "summary": "Remove backend authorization barriers that require Internet Identity sign-in for the core app flows, so anonymous users can create, read, update, and delete outreach entries and can read/write group notes without receiving \"Unauthorized\" traps.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-43",
-        "summary": "Ensure the frontend keeps Dashboard and Hook Template Library accessible in anonymous mode (no sign-in wall), while retaining the existing sticky Dashboard header with the \"Add Entry\" button, and keeping the Craft Category dropdown and Image Upload field in the Add/Edit Entry form.",
+        "id": "REQ-56",
+        "summary": "Add a new text field named \"Lead Contact Info\" to each outreach entry and persist it end-to-end: update the Motoko `FacebookOutreachEntry` record and all related create/update/list/get flows to store and return this value for each entry.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useAuthorizedActor.ts",
-          "frontend/src/pages/DashboardPage.tsx",
-          "frontend/src/pages/HookTemplateLibraryPage.tsx",
           "frontend/src/components/entries/EntryFormDialog.tsx",
-          "frontend/src/components/entries/ImageUploadField.tsx",
-          "frontend/src/utils/canisterErrors.ts"
+          "frontend/src/hooks/useOutreachMutations.ts",
+          "frontend/src/components/entries/EntriesTable.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/DashboardPage.tsx",
-          "frontend/src/pages/HookTemplateLibraryPage.tsx",
-          "frontend/src/utils/canisterErrors.ts"
+          "frontend/src/components/entries/EntryFormDialog.tsx",
+          "frontend/src/hooks/useOutreachMutations.ts",
+          "frontend/src/components/entries/EntriesTable.tsx"
         ]
       },
       {
-        "id": "REQ-44",
-        "summary": "Resolve the stopped-canister availability issue for Live by ensuring the backend canister is running/restarted and that the deployed frontend uses the backend health check to show a clear \"Backend Service Unavailable\" state only when the canister is stopped/unreachable, with a Retry action that re-attempts loading.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useBackendHealth.ts",
-          "frontend/src/utils/canisterErrors.ts",
-          "frontend/src/pages/DashboardPage.tsx",
-          "frontend/src/pages/HookTemplateLibraryPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useBackendHealth.ts",
-          "frontend/src/utils/canisterErrors.ts",
-          "frontend/src/pages/DashboardPage.tsx",
-          "frontend/src/pages/HookTemplateLibraryPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-45",
-        "summary": "Deploy the current draft build to Live after applying the above fixes, and perform a quick smoke test in Live to confirm: (1) Dashboard and Hook Template Library are usable without sign-in, (2) Dashboard header is sticky with \"Add Entry\", and (3) the Entry form includes Craft Category and Image Upload.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/docs/live-smoke-test.md",
-          "frontend/src/components/layout/AppLayout.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/docs/live-smoke-test.md",
-          "frontend/src/components/layout/AppLayout.tsx"
-        ]
+        "id": "REQ-57",
+        "summary": "Ensure the Hook Template Library page is usable without any sign-in requirement by preventing backend \"Unauthorized\" errors for anonymous callers for the hook-template read/write methods used by the page, so the page can load and save templates in anonymous mode.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/docs/live-smoke-test.md",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/hooks/useBackendHealth.ts",
-    "frontend/src/pages/DashboardPage.tsx",
-    "frontend/src/pages/HookTemplateLibraryPage.tsx",
-    "frontend/src/utils/canisterErrors.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/entries/EntriesTable.tsx",
+    "frontend/src/components/entries/EntryFormDialog.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useOutreachMutations.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

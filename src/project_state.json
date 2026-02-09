@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 25,
+  "projectStateVersion": 31,
   "summary": "Business marketing tracker web app for Pinspiration studio to log outreach/lead activity with a database-backed entry form and a mobile-responsive dashboard (recent posts table, success rate chart, follow-up reminders), plus additional insights like days-since-last-post per group, a winning posts highlight section, storing group rules notes, and enhanced entry categorization fields.",
   "architectural_notes": [
     "Response Status values are constrained to: No Response, Active Discussion, Leads Generated, Negative Feedback.",
@@ -18,9 +18,10 @@
     "Recent Posts section returns 'Unauthorized' error; likely React/backend identity state mismatch or missing admin permission for list entries.",
     "'Sign in required' / 'Unauthorized' errors occur on both Dashboard and Hook Template Library; likely React/backend identity state mismatch or auth initialization race preventing backend from recognizing authenticated user.",
     "App shows 'Canister is stopped' error; backend canister is not running, causing request rejections (e.g., getHookTemplatesForCaller).",
-    "Hook Template Library 'Copy to Clipboard' action may not be copying template text reliably; needs verification/fix."
+    "Hook Template Library 'Copy to Clipboard' action may not be copying template text reliably; needs verification/fix.",
+    "Saving an entry in Live fails with: 'Unauthorized: Only users can create entries' (backend create entry still gated by user-only permission; must allow anonymous create/view as requested)."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-create-a-mobile-responsive-frontend-layout-with-a-professional-clean-visual-theme-distinct-style-typography-spacing-neutral-palette-applied-consistently-across-all-screens-and-components",
@@ -301,6 +302,38 @@
         "REQ-45"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-ensure-the-live-backend-canister-is-fully-started-running-and-the-live-deployment-is-synced-with-the-current-frontend-version-then-perform-a-quick-live-smoke-test-focused-on-anonymous-entry-creation-and-viewing",
+      "title": "Ensure the Live backend canister is fully started/running and the Live deployment is synced with the current frontend version, then perform a quick Live smoke test focused on anonymous entry creation and viewing.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-add-edit-entry-form-ui-entryformdialog-to-include-a-required-dropdown-labeled-event-type-with-the-exact-7-options-provided-by-the-user-and-ensure-the-selected-value-is-saved-updated-with-the-entry",
+      "title": "Update the Add/Edit Entry form UI (EntryFormDialog) to include a required dropdown labeled \"Event Type\" with the exact 7 options provided by the user, and ensure the selected value is saved/updated with the entry.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-dashboard-ui-to-show-which-event-type-is-getting-the-most-inquiries-by-rendering-a-chart-ranked-list-driven-by-the-backend-event-type-inquiry-summary-query",
+      "title": "Update the Dashboard UI to show which Event Type is getting the most inquiries by rendering a chart/ranked list driven by the backend Event Type inquiry summary query.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-text-field-named-lead-contact-info-to-each-outreach-entry-and-persist-it-end-to-end-update-the-motoko-facebookoutreachentry-record-and-all-related-create-update-list-get-flows-to-store-and-return-this-value-for-each-entry",
+      "title": "Add a new text field named \"Lead Contact Info\" to each outreach entry and persist it end-to-end: update the Motoko `FacebookOutreachEntry` record and all related create/update/list/get flows to store and return this value for each entry.",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -489,6 +522,94 @@
       "summary": "Update backend authorization so the Dashboard and Hook Template Library are fully usable without signing in (no Internet Identity and no admin token), meaning the backend methods used by these pages must not trap with \"Unauthorized\" for anonymous callers.",
       "reqIds": [
         "REQ-42"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Disable all backend permission/authorization checks for creating and viewing outreach entries (at minimum: createEntry + list/get entries) so the app is fully usable immediately without login, resolving the live error 'Unauthorized: Only users can create entries'.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Remove/disable backend permission checks that currently block anonymous callers from creating and viewing outreach entries, so the app can be used immediately without login. This must eliminate the specific live failure: \"Unauthorized: Only users can create entries\".",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Remove/disable backend permission checks that currently block anonymous callers from viewing group notes used by the entries workflow, so the dashboard/entry UX does not fail in anonymous mode when it reads related entry data.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Keep user-profile and hook-template permission checks unchanged (do not broaden access) unless required to satisfy anonymous creation/viewing of outreach entries.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Add a required \"Event Type\" dropdown to the Add/Edit Entry form with options: General DIY (Individual), Birthday Party (Kids), Birthday Party (Adult), Bachelorette/Bridal Shower, Girls' Night Out, Field Trips, Corporate Team Building; persist the selected value on each entry.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Update the Dashboard to show which \"Event Type\" is getting the most inquiries (e.g., a chart/ranking of Event Type counts, aligned with the app’s definition of an inquiry).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-43",
+      "summary": "Extend the backend outreach entry data model to persist an \"Event Type\" value on each Facebook outreach entry, using a dedicated backend enum type with exactly these options: \"General DIY (Individual)\", \"Birthday Party (Kids)\", \"Birthday Party (Adult)\", \"Bachelorette/Bridal Shower\", \"Girls' Night Out\", \"Field Trips\", \"Corporate Team Building\".",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Add a backend query that returns an Event Type inquiry summary for the Dashboard: counts of entries grouped by Event Type, where \"inquiry\" is defined as an entry whose Type of Interest is \"Group Booking\".",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Add a conditional state migration so existing stored entries created before the Event Type field existed remain readable after upgrade, using a sensible default Event Type value for pre-existing entries.",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Add a text field \"Lead Contact Info\" to the Add/Edit Entry form to record a lead’s name/email (e.g., from commenters on team-building posts) and persist it with each entry.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-49",
+      "summary": "Remove backend authorization barriers that require Internet Identity sign-in for the core app flows, so anonymous users can create, read, update, and delete outreach entries and can read/write group notes without receiving \"Unauthorized\" traps.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Ensure the Hook Template Library page is usable without any sign-in requirement by preventing backend \"Unauthorized\" errors for anonymous callers for the hook-template read/write methods used by the page, so the page can load and save templates in anonymous mode.",
+      "reqIds": [
+        "REQ-57"
       ],
       "status": "pending"
     }

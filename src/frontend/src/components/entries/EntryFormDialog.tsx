@@ -21,10 +21,11 @@ import {
 } from '@/components/ui/select';
 import { useOutreachMutations } from '@/hooks/useOutreachMutations';
 import { useOutreachQueries } from '@/hooks/useOutreachQueries';
-import { ResponseStatus, ExternalBlob, CraftCategory, TypeOfInterest } from '@/backend';
+import { ResponseStatus, ExternalBlob, CraftCategory, TypeOfInterest, EventType } from '@/backend';
 import { getResponseStatusLabel, RESPONSE_STATUS_OPTIONS } from './responseStatusLabels';
 import { CRAFT_CATEGORY_OPTIONS } from './entryCategoryOptions';
 import { TYPE_OF_INTEREST_OPTIONS } from './entryInterestOptions';
+import { EVENT_TYPE_OPTIONS } from './entryEventTypeOptions';
 import { validateUrl, validateNonNegative } from './entryFormValidation';
 import { formatDateForInput, formatDateForBackend } from '@/utils/dateFormat';
 import { validateImageFile, fileToUint8Array, createPreviewUrl } from '@/utils/imageFile';
@@ -37,6 +38,7 @@ interface EntryFormDialogProps {
   onOpenChange: (open: boolean) => void;
   editingEntryId: bigint | null;
   onClose: () => void;
+  isBackendAvailable: boolean;
 }
 
 interface FormData {
@@ -49,6 +51,7 @@ interface FormData {
   responseStatus: ResponseStatus;
   followUpDate: string;
   groupNotes: string;
+  leadContactInfo: string;
 }
 
 type ImageIntent = 'keep' | 'replace' | 'remove';
@@ -58,17 +61,19 @@ export default function EntryFormDialog({
   onOpenChange,
   editingEntryId,
   onClose,
+  isBackendAvailable,
 }: EntryFormDialogProps) {
   const [responseStatus, setResponseStatus] = useState<ResponseStatus>(ResponseStatus.NoResponse);
   const [craftCategory, setCraftCategory] = useState<CraftCategory>(CraftCategory.SplatterRoom);
   const [typeOfInterest, setTypeOfInterest] = useState<TypeOfInterest>(TypeOfInterest.Price);
+  const [eventType, setEventType] = useState<EventType>(EventType.GeneralDIYIndividual);
   const [currentGroupUrl, setCurrentGroupUrl] = useState<string>('');
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [imageIntent, setImageIntent] = useState<ImageIntent>('keep');
   
-  const { data: entries } = useOutreachQueries.useListEntries();
-  const { data: groupNotes, isLoading: isLoadingNotes } = useOutreachQueries.useGroupNotes(currentGroupUrl);
+  const { data: entries } = useOutreachQueries.useListEntries(isBackendAvailable);
+  const { data: groupNotes, isLoading: isLoadingNotes } = useOutreachQueries.useGroupNotes(currentGroupUrl, isBackendAvailable);
   const createMutation = useOutreachMutations.useCreateEntry();
   const updateMutation = useOutreachMutations.useUpdateEntry();
   const saveNotesMutation = useOutreachMutations.useSaveGroupNotes();
@@ -115,9 +120,11 @@ export default function EntryFormDialog({
         setValue('numReactions', editingEntry.numReactions.toString());
         setValue('numComments', editingEntry.numComments.toString());
         setValue('followUpDate', formatDateForInput(editingEntry.followUpDate));
+        setValue('leadContactInfo', editingEntry.leadContactInfo || '');
         setResponseStatus(editingEntry.responseStatus);
         setCraftCategory(editingEntry.craftCategory);
         setTypeOfInterest(editingEntry.typeOfInterest);
+        setEventType(editingEntry.eventType);
         setCurrentGroupUrl(editingEntry.groupUrl);
         
         // Reset image state for editing
@@ -134,10 +141,12 @@ export default function EntryFormDialog({
           numComments: '0',
           followUpDate: formatDateForInput(new Date().toISOString().split('T')[0]),
           groupNotes: '',
+          leadContactInfo: '',
         });
         setResponseStatus(ResponseStatus.NoResponse);
         setCraftCategory(CraftCategory.SplatterRoom);
         setTypeOfInterest(TypeOfInterest.Price);
+        setEventType(EventType.GeneralDIYIndividual);
         setCurrentGroupUrl('');
         
         // Reset image state for new entry
@@ -191,6 +200,12 @@ export default function EntryFormDialog({
       return;
     }
 
+    // Validate Event Type is set (explicit check)
+    if (!eventType) {
+      toast.error('Event Type is required');
+      return;
+    }
+
     const urlValidation = validateUrl(data.groupUrl);
     if (!urlValidation.valid) {
       toast.error(urlValidation.error);
@@ -236,6 +251,8 @@ export default function EntryFormDialog({
         followUpDate: formatDateForBackend(data.followUpDate),
         craftCategory,
         typeOfInterest,
+        eventType,
+        leadContactInfo: data.leadContactInfo.trim(),
         attachment,
       };
 
@@ -332,7 +349,7 @@ export default function EntryFormDialog({
                 required
               >
                 <SelectTrigger id="craftCategory">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
                   {CRAFT_CATEGORY_OPTIONS.map((option) => (
@@ -365,30 +382,48 @@ export default function EntryFormDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="datePosted">Date Posted *</Label>
-              <Input
-                id="datePosted"
-                type="date"
-                {...register('datePosted', { required: true })}
-              />
-              {errors.datePosted && (
-                <p className="text-sm text-destructive">Date posted is required</p>
-              )}
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="eventType">Event Type *</Label>
+            <Select 
+              value={eventType} 
+              onValueChange={(value) => setEventType(value as EventType)}
+              required
+            >
+              <SelectTrigger id="eventType">
+                <SelectValue placeholder="Select event type" />
+              </SelectTrigger>
+              <SelectContent>
+                {EVENT_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="followUpDate">Follow-up Date *</Label>
-              <Input
-                id="followUpDate"
-                type="date"
-                {...register('followUpDate', { required: true })}
-              />
-              {errors.followUpDate && (
-                <p className="text-sm text-destructive">Follow-up date is required</p>
-              )}
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="leadContactInfo">Lead Contact Info</Label>
+            <Input
+              id="leadContactInfo"
+              {...register('leadContactInfo')}
+              placeholder="e.g., Jane Smith - jane@example.com"
+            />
+            <p className="text-xs text-muted-foreground">
+              Optional: Add contact details for leads from your posts
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="datePosted">Date Posted *</Label>
+            <Input
+              id="datePosted"
+              type="date"
+              {...register('datePosted', { required: true })}
+            />
+            {errors.datePosted && (
+              <p className="text-sm text-destructive">Date posted is required</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -396,7 +431,7 @@ export default function EntryFormDialog({
             <Textarea
               id="postContent"
               {...register('postContent', { required: true })}
-              placeholder="What did you post?"
+              placeholder="Enter the content of your post"
               rows={4}
             />
             {errors.postContent && (
@@ -404,17 +439,18 @@ export default function EntryFormDialog({
             )}
           </div>
 
-          <ImageUploadField
-            selectedFile={selectedImageFile}
-            previewUrl={imagePreviewUrl}
-            existingImageUrl={existingImageUrl}
-            onFileSelect={handleImageSelect}
-            disabled={isLoading}
-          />
+          <div className="space-y-2">
+            <ImageUploadField
+              selectedFile={selectedImageFile}
+              onFileSelect={handleImageSelect}
+              previewUrl={imagePreviewUrl}
+              existingImageUrl={existingImageUrl}
+            />
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="numReactions">Reactions</Label>
+              <Label htmlFor="numReactions">Number of Reactions</Label>
               <Input
                 id="numReactions"
                 type="number"
@@ -427,7 +463,7 @@ export default function EntryFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="numComments">Comments</Label>
+              <Label htmlFor="numComments">Number of Comments</Label>
               <Input
                 id="numComments"
                 type="number"
@@ -442,7 +478,10 @@ export default function EntryFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="responseStatus">Response Status *</Label>
-            <Select value={responseStatus} onValueChange={(value) => setResponseStatus(value as ResponseStatus)}>
+            <Select
+              value={responseStatus}
+              onValueChange={(value) => setResponseStatus(value as ResponseStatus)}
+            >
               <SelectTrigger id="responseStatus">
                 <SelectValue />
               </SelectTrigger>
@@ -454,6 +493,18 @@ export default function EntryFormDialog({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="followUpDate">Follow-up Date *</Label>
+            <Input
+              id="followUpDate"
+              type="date"
+              {...register('followUpDate', { required: true })}
+            />
+            {errors.followUpDate && (
+              <p className="text-sm text-destructive">Follow-up date is required</p>
+            )}
           </div>
 
           <DialogFooter>
