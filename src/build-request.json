@@ -1,74 +1,53 @@
 {
   "kind": "build_request",
-  "title": "Add Lead Contact Info field and fully remove sign-in requirements (anonymous access) for Live",
-  "priority": "high",
+  "title": "Show uploaded entry images as thumbnails in Recent Posts and support camera capture",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-55",
-      "text": "Remove backend authorization barriers that require Internet Identity sign-in for the core app flows, so anonymous users can create, read, update, and delete outreach entries and can read/write group notes without receiving \"Unauthorized\" traps.",
-      "target": "backend",
+      "id": "REQ-58",
+      "text": "Update the Dashboard \"Recent Posts\" table to display each entry’s uploaded image attachment as a small thumbnail, so the user can visually identify the graphic used for that post.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-5"
         ],
         "quotes": [
-          "Fix Access: Remove all sign-in requirements and deploy to Live."
+          "Make sure the image shows up as a small thumbnail in my 'Recent Posts' list!"
         ]
       },
       "acceptanceCriteria": [
-        "Calling `createEntry`, `listEntries`, `getEntry`, `updateEntry`, `deleteEntry`, `getFollowUpToday`, `getGroupResponseSummary`, `getInquirySummaryByEventType`, `getGroupNotes`, and `setGroupNotes` with an anonymous caller does not trap with an \"Unauthorized\" error.",
-        "The specific error reported in Live (\"Unauthorized: Only users can create entries\") no longer occurs when creating an entry anonymously.",
-        "User-profile and hook-template authorization rules are unchanged unless required by REQ-57 (do not broaden access to profile methods)."
+        "When an entry has an image attachment, the Recent Posts table renders a thumbnail (small, consistent size) for that entry.",
+        "When an entry has no image attachment, the table renders a clear empty state in that thumbnail spot (e.g., an em dash or placeholder) without breaking layout.",
+        "Thumbnails use the entry’s existing attachment direct URL (no additional backend endpoints required) and load correctly after creating/updating an entry (React Query cache remains in sync).",
+        "The table remains readable and mobile-responsive; thumbnail rendering does not cause horizontal overflow beyond existing behavior."
       ]
     },
     {
-      "id": "REQ-56",
-      "text": "Add a new text field named \"Lead Contact Info\" to each outreach entry and persist it end-to-end: update the Motoko `FacebookOutreachEntry` record and all related create/update/list/get flows to store and return this value for each entry.",
-      "target": "both",
+      "id": "REQ-59",
+      "text": "In the Add/Edit Entry form’s Image Upload field, ensure mobile users can take a photo directly from their device camera as well as upload from their library, while keeping all user-facing text in English.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-5"
         ],
         "quotes": [
-          "Add Lead Field: Add a text field for 'Lead Contact Info'."
+          "I want to be able to upload or take a photo of the graphic I am using for each post"
         ]
       },
       "acceptanceCriteria": [
-        "Backend: each `FacebookOutreachEntry` includes a new `leadContactInfo` (text) field that is returned by `createEntry`, `updateEntry`, `getEntry`, and `listEntries`.",
-        "Backend: upgrading existing stored entries created before this field existed remains readable after upgrade, with a sensible default value (for example, empty text).",
-        "Frontend: the Add/Edit Entry form includes a labeled text input \"Lead Contact Info\" that is saved when creating an entry and is pre-filled when editing an existing entry.",
-        "Frontend: after saving, the Dashboard refreshes via existing React Query invalidation and the saved \"Lead Contact Info\" value is visible somewhere in the entry UI (either a table column, a row detail/expanded view, or an edit view that clearly shows the persisted value)."
-      ]
-    },
-    {
-      "id": "REQ-57",
-      "text": "Ensure the Hook Template Library page is usable without any sign-in requirement by preventing backend \"Unauthorized\" errors for anonymous callers for the hook-template read/write methods used by the page, so the page can load and save templates in anonymous mode.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Fix Access: Remove all sign-in requirements and deploy to Live."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Calling `getHookTemplatesForCaller` as an anonymous caller succeeds and returns a 3-item template array (existing default behavior is acceptable).",
-        "Calling `saveHookTemplates` as an anonymous caller succeeds (while still requiring exactly 3 templates).",
-        "The Hook Template Library page can load and save templates successfully when the user is not signed in (anonymous mode), without showing an authorization-related failure."
+        "On supported mobile browsers, the Image Upload control offers the option to capture a new photo from the camera (in addition to choosing an existing image).",
+        "Existing behaviors remain intact: selected filename display, preview when possible, and ability to clear/replace the image before saving.",
+        "All visible labels/help text related to image upload remain in English."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko canister with logic in `backend/main.mo` (add/update `backend/migration.mo` only if required for state compatibility).",
-    "Do not edit any frontend files under `frontend/src/components/ui` or other paths listed in `frontend.immutablePaths`; compose existing components instead.",
-    "Keep all user-facing text in English.",
-    "Do not change the existing backend enum values for Response Status, Craft Category, Type of Interest, or Event Type."
+    "Do not edit files under frontend/src/components/ui (Shadcn UI components are read-only and must be composed).",
+    "Keep the backend architecture as a single Motoko actor; do not introduce additional backend services."
   ],
   "nonGoals": [
-    "Do not redesign the Dashboard or add new analytics/widgets beyond showing the persisted \"Lead Contact Info\" value somewhere in the entry UI.",
-    "Do not change the existing Craft Category or Event Type option sets/enum definitions (the request examples like \"Candles\", \"Corporate\", \"Birthday\", \"Bachelorette\" should map to existing options/labels if needed, but do not replace the enums).",
-    "Do not add third-party authentication providers; only Internet Identity may exist as an optional sign-in method."
+    "Do not redesign the overall Dashboard layout beyond adding a thumbnail column/thumbnail area in the existing Recent Posts table.",
+    "Do not add new image processing features (cropping, resizing UI, filters)."
   ],
   "imageRequirements": {
     "required": [],

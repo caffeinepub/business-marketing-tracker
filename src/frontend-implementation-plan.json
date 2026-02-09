@@ -1,30 +1,48 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Lead Contact Info field to outreach entry create/edit and display",
+  "title": "Recent Posts thumbnails for entry attachments + mobile camera capture upload",
   "requirements": [
     {
-      "id": "REQ-56",
-      "summary": "Add a persisted “Lead Contact Info” text field to outreach entries in the UI (create/edit + visible display).",
+      "id": "REQ-58",
+      "summary": "Show each entry’s uploaded image attachment as a small thumbnail in the Dashboard Recent Posts table.",
       "acceptanceCriteria": [
-        "Frontend: the Add/Edit Entry form includes a labeled text input \"Lead Contact Info\" that is saved when creating an entry and is pre-filled when editing an existing entry.",
-        "Frontend: after saving, the Dashboard refreshes via existing React Query invalidation and the saved \"Lead Contact Info\" value is visible somewhere in the entry UI (either a table column, a row detail/expanded view, or an edit view that clearly shows the persisted value)."
+        "When an entry has an image attachment, the Recent Posts table renders a thumbnail (small, consistent size) for that entry.",
+        "When an entry has no image attachment, the table renders a clear empty state in that thumbnail spot (e.g., an em dash or placeholder) without breaking layout.",
+        "Thumbnails use the entry’s existing attachment direct URL (no additional backend endpoints required) and load correctly after creating/updating an entry (React Query cache remains in sync).",
+        "The table remains readable and mobile-responsive; thumbnail rendering does not cause horizontal overflow beyond existing behavior."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/entries/EntryFormDialog.tsx",
+          "path": "frontend/src/components/entries/EntriesTable.tsx",
           "operation": "modify",
-          "description": "Add a new form field (react-hook-form) for \"Lead Contact Info\" and wire it into create/update payloads: include it in FormData, reset defaults, pre-fill from editingEntry.leadContactInfo, and submit it along with the existing fields. Use existing shadcn-ui Input/Label for the new control; verify the component's usage instructions before implementing."
+          "description": "Add a new leading \"Image\" column to the Recent Posts table that renders a consistent-size thumbnail when entry.attachment exists, using the blob-storage ExternalBlob capability (getDirectURL()) for the image src; render an explicit placeholder (e.g., em dash) when no attachment; ensure thumbnail sizing uses fixed dimensions + object-fit so rows stay aligned and the table remains readable/responsive without introducing additional horizontal overflow. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/hooks/useOutreachMutations.ts",
           "operation": "modify",
-          "description": "Extend create/update entry mutations to accept leadContactInfo and pass it to the backend createEntry/updateEntry calls in the correct argument order (matching frontend/src/backend.d.ts). Ensure existing React Query invalidation behavior remains unchanged."
+          "description": "Confirm React Query invalidation behavior keeps listEntries data (including attachment) in sync after create/update so the new thumbnail column updates immediately without requiring a full refresh; adjust invalidation predicates/keys only if needed."
+        }
+      ]
+    },
+    {
+      "id": "REQ-59",
+      "summary": "Enable camera capture option in the Add/Edit Entry image upload field on mobile, while preserving existing upload/preview/clear behaviors and English text.",
+      "acceptanceCriteria": [
+        "On supported mobile browsers, the Image Upload control offers the option to capture a new photo from the camera (in addition to choosing an existing image).",
+        "Existing behaviors remain intact: selected filename display, preview when possible, and ability to clear/replace the image before saving.",
+        "All visible labels/help text related to image upload remain in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/entries/ImageUploadField.tsx",
+          "operation": "modify",
+          "description": "Update the Image Upload control to provide both (1) a camera capture flow and (2) a library upload flow on mobile by using separate file inputs and/or input attributes (accept=\"image/*\" with capture) behind clear English buttons/labels; keep existing filename display, preview rendering, and clear/replace behavior intact."
         },
         {
-          "path": "frontend/src/components/entries/EntriesTable.tsx",
+          "path": "frontend/src/components/entries/EntryFormDialog.tsx",
           "operation": "modify",
-          "description": "Display the persisted leadContactInfo value in the entries UI (e.g., add a \"Lead Contact Info\" column with a readable/truncated cell). Use existing shadcn-ui Table primitives already in this file; verify the component's usage instructions before implementing."
+          "description": "Wire the updated ImageUploadField into the Add/Edit Entry dialog so camera-captured images follow the same validation, preview, replace/remove intent handling, and save flow as library-selected images; ensure any user-facing text remains English."
         }
       ]
     }

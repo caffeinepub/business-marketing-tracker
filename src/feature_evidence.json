@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-text-field-named-lead-contact-info-to-each-outreach-entry-and-persist-it-end-to-end-update-the-motoko-facebookoutreachentry-record-and-all-related-create-update-list-get-flows-to-store-and-return-this-value-for-each-entry",
-      "featureTitle": "Add a new text field named \"Lead Contact Info\" to each outreach entry and persist it end-to-end: update the Motoko `FacebookOutreachEntry` record and all related create/update/list/get flows to store and return this value for each entry.",
+      "featureId": "feature-update-the-dashboard-recent-posts-table-to-display-each-entry-s-uploaded-image-attachment-as-a-small-thumbnail-so-the-user-can-visually-identify-the-graphic-used-for-that-post",
+      "featureTitle": "Update the Dashboard \"Recent Posts\" table to display each entry’s uploaded image attachment as a small thumbnail, so the user can visually identify the graphic used for that post.",
       "files": [
-        "frontend/src/components/entries/EntriesTable.tsx",
-        "frontend/src/components/entries/EntryFormDialog.tsx",
-        "frontend/src/hooks/useOutreachMutations.ts"
+        "frontend/src/components/entries/EntriesTable.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -19,7 +17,27 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-56"
+        "REQ-58"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-the-add-edit-entry-form-s-image-upload-field-ensure-mobile-users-can-take-a-photo-directly-from-their-device-camera-as-well-as-upload-from-their-library-while-keeping-all-user-facing-text-in-english",
+      "featureTitle": "In the Add/Edit Entry form’s Image Upload field, ensure mobile users can take a photo directly from their device camera as well as upload from their library, while keeping all user-facing text in English.",
+      "files": [
+        "frontend/src/components/entries/ImageUploadField.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-59"
       ],
       "confidence": "high"
     }

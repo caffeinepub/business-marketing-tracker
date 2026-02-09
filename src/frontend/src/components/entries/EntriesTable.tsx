@@ -45,6 +45,7 @@ export default function EntriesTable({ entries, onEdit }: EntriesTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[60px]">Image</TableHead>
                 <TableHead className="min-w-[150px]">Group/Page</TableHead>
                 <TableHead className="min-w-[100px]">Date Posted</TableHead>
                 <TableHead className="min-w-[120px]">Status</TableHead>
@@ -58,6 +59,21 @@ export default function EntriesTable({ entries, onEdit }: EntriesTableProps) {
             <TableBody>
               {entries.map((entry) => (
                 <TableRow key={entry.id.toString()}>
+                  <TableCell>
+                    {entry.attachment ? (
+                      <div className="w-12 h-12 rounded overflow-hidden border border-border bg-muted flex items-center justify-center">
+                        <img
+                          src={entry.attachment.getDirectURL()}
+                          alt="Post thumbnail"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 flex items-center justify-center text-muted-foreground text-sm">
+                        —
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       <span className="truncate max-w-[200px]">{entry.groupName}</span>

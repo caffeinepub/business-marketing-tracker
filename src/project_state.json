@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 31,
+  "projectStateVersion": 33,
   "summary": "Business marketing tracker web app for Pinspiration studio to log outreach/lead activity with a database-backed entry form and a mobile-responsive dashboard (recent posts table, success rate chart, follow-up reminders), plus additional insights like days-since-last-post per group, a winning posts highlight section, storing group rules notes, and enhanced entry categorization fields.",
   "architectural_notes": [
     "Response Status values are constrained to: No Response, Active Discussion, Leads Generated, Negative Feedback.",
@@ -334,6 +334,22 @@
         "REQ-56"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-dashboard-recent-posts-table-to-display-each-entry-s-uploaded-image-attachment-as-a-small-thumbnail-so-the-user-can-visually-identify-the-graphic-used-for-that-post",
+      "title": "Update the Dashboard \"Recent Posts\" table to display each entry’s uploaded image attachment as a small thumbnail, so the user can visually identify the graphic used for that post.",
+      "reqIds": [
+        "REQ-58"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-add-edit-entry-form-s-image-upload-field-ensure-mobile-users-can-take-a-photo-directly-from-their-device-camera-as-well-as-upload-from-their-library-while-keeping-all-user-facing-text-in-english",
+      "title": "In the Add/Edit Entry form’s Image Upload field, ensure mobile users can take a photo directly from their device camera as well as upload from their library, while keeping all user-facing text in English.",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -611,6 +627,12 @@
       "reqIds": [
         "REQ-57"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-52",
+      "summary": "Show the uploaded entry image as a small thumbnail in the Dashboard \"Recent Posts\" list/table (next to the entry’s content/hook/results) so users can visually identify the graphic used for each post.",
+      "reqIds": [],
       "status": "pending"
     }
   ],

@@ -1,43 +1,15 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T08:21:41.756Z",
-  "summary": "The diff clearly adds the new backend field `leadContactInfo` (with a migration) and wires it into frontend mutations and the entries table UI. However, the diff summary is truncated for `backend/main.mo` and `EntryFormDialog.tsx`, so several acceptance criteria around anonymous access for multiple backend methods and the exact presence/behavior of the Lead Contact Info input (label + edit prefill) and hook-template anonymous usability are not fully evidenced.",
-  "missing_requirements": [
-    {
-      "id": "REQ-55",
-      "requirement": "Remove backend authorization barriers so anonymous users can create/read/update/delete entries and read/write group notes without \"Unauthorized\" traps for the listed core methods.",
-      "reason": "Although `backend/main.mo` indicates \"Facebook Outreach Entry CRUD (anonymous access allowed)\" and shows `createEntry` signature changes, the diff is truncated and does not show the implementations/authorization checks for `listEntries`, `getEntry`, `updateEntry`, `deleteEntry`, `getFollowUpToday`, `getGroupResponseSummary`, `getInquirySummaryByEventType`, `getGroupNotes`, and `setGroupNotes`. Therefore, it is not evidenced that anonymous calls to all these methods no longer trap with \"Unauthorized\".",
-      "evidence": [
-        "backend/main.mo (truncated; only shows user-profile auth checks and start of createEntry)"
-      ]
-    },
-    {
-      "id": "REQ-56",
-      "requirement": "Frontend Add/Edit Entry form includes a labeled text input \"Lead Contact Info\" that is saved on create and pre-filled on edit.",
-      "reason": "The form type includes `leadContactInfo`, and mutations/table display reference it, but the truncated `EntryFormDialog.tsx` snippet does not show the actual rendered labeled input field nor the edit prefill/reset logic that sets the value when editing an existing entry.",
-      "evidence": [
-        "frontend/src/components/entries/EntryFormDialog.tsx (truncated; shows FormData includes leadContactInfo but not the input UI)"
-      ]
-    },
-    {
-      "id": "REQ-57",
-      "requirement": "Allow anonymous callers to use hook-template methods (`getHookTemplatesForCaller`, `saveHookTemplates`) so the Hook Template Library page loads and saves in anonymous mode without authorization failures.",
-      "reason": "No diff evidence is shown for the hook-template methods or any changes to their authorization logic; `backend/main.mo` is truncated and does not include these methods.",
-      "evidence": [
-        "backend/main.mo (truncated; hook-template methods/authorization not shown)"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-09T09:13:17.843Z",
+  "summary": "Diff implements both requested frontend changes: adds a leading Image thumbnail column to the Recent Posts table using the existing attachment direct URL with a consistent 48x48 thumbnail and an em dash empty state, and updates the Image Upload field to support camera capture via a dedicated hidden input with capture=\"environment\" plus a camera button, while keeping user-facing text in English and preserving clear/replace behaviors.",
+  "missing_requirements": [],
   "hallucinated_features": [],
-  "confidence": 0.62,
+  "confidence": 0.78,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/components/entries/EntriesTable.tsx",
-    "frontend/src/components/entries/EntryFormDialog.tsx",
-    "frontend/src/hooks/useOutreachMutations.ts",
+    "frontend/src/components/entries/ImageUploadField.tsx",
     "project_state.json"
   ]
 }

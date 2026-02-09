@@ -1,13 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Enable fully anonymous access for core app workflows (including Hook Template Library) and add a persisted “Lead Contact Info” field to outreach entries.
+**Goal:** Show entry image attachments as thumbnails in the Dashboard Recent Posts list and allow mobile users to capture photos from their device camera when uploading an entry image.
 
 **Planned changes:**
-- Remove backend authorization barriers so anonymous callers can create/read/update/delete outreach entries and read/write group notes without “Unauthorized” traps.
-- Keep existing user-profile authorization rules unchanged (do not broaden access to profile methods).
-- Add a new `leadContactInfo` text field to the backend outreach entry record, including upgrade compatibility for previously stored entries (default to empty text).
-- Update frontend Add/Edit Entry flow to capture, save, and pre-fill “Lead Contact Info”, and display the saved value somewhere in the entry UI.
-- Adjust hook-template backend methods used by the Hook Template Library to work in anonymous mode (load defaults and save exactly 3 templates).
+- Add a thumbnail area/column to the Dashboard “Recent Posts” table that renders a small, consistent-size thumbnail when an entry has an image attachment, using the attachment’s existing direct URL.
+- Display a clear empty state in the thumbnail spot for entries without an image attachment, without breaking the table layout.
+- Update the Add/Edit Entry form’s Image Upload control to support camera capture on supported mobile browsers (in addition to selecting an image from the device library), keeping existing preview/clear/replace behaviors and English-only text.
 
-**User-visible outcome:** Users can use the app without signing in (including creating entries, managing notes, and using the Hook Template Library), and each outreach entry can store and display “Lead Contact Info”.
+**User-visible outcome:** Users can quickly identify recent posts by a small image thumbnail in the Recent Posts list, and on mobile they can either upload an image or take a new photo with their camera for an entry.
